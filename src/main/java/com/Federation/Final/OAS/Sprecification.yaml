@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Agricultural Federation
   description: Agricultural Federation
-  version: 1.2.0
+  version: 1.3.0
 servers:
   - url: 'https://localhost:8080'
 
@@ -230,6 +230,91 @@ paths:
                 type: string
                 example: Condition not respected
 
+  # REPORTING
+  /reports/collectivity/{collectivityId}:
+    get:
+      summary: Global statistics report for one collectivity
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+
+      responses:
+        '200':
+          description: Report generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectivityReport'
+
+        '404':
+          description: Collectivity not found
+
+  /reports/monthly:
+    get:
+      summary: Monthly global report for all collectivities
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+
+      responses:
+        '200':
+          description: Monthly report returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CollectivityReport'
+
+
+  /reports/yearly:
+    get:
+      summary: Annual global report for all collectivities
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Yearly report returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CollectivityReport'
+
 components:
   schemas:
     Collectivitie:
@@ -398,7 +483,34 @@ components:
         payment_date:
           type: string
           format: date
-
+    CollectivityReport:
+      type: object
+      properties:
+        collectivityId:
+          type: integer
+          example: 1
+        collectivityName:
+          type: string
+          example: Antananarivo Centre
+        attendanceRate:
+          type: number
+          format: double
+          example: 87.5
+          description: Global attendance rate in percentage
+        upToDateContributionRate:
+          type: number
+          format: double
+          example: 72.4
+          description: Percentage of members up to date with contribution
+        newMembersCount:
+          type: integer
+          example: 15
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
 
 
 
