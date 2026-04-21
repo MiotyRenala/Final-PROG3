@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Agricultural Federation
   description: Agricultural Federation
-  version: 1.3.0
+  version: 1.3.1
 servers:
   - url: 'https://localhost:8080'
 
@@ -14,14 +14,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Collectivitie'
+              $ref: '#/components/schemas/Collectivity'
       responses:
         201:
           description: Collectivities created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Collectivitie'
+                $ref: '#/components/schemas/Collectivity'
         403:
           description: Condition not respected
           content:
@@ -172,6 +172,7 @@ paths:
           application/json:
             schema:
               type: array
+              items:
               $ref: '#/components/schemas/Activity'
       responses:
         '201':
@@ -317,7 +318,7 @@ paths:
 
 components:
   schemas:
-    Collectivitie:
+    Collectivity:
       type: object
       properties:
         id:
@@ -335,7 +336,7 @@ components:
         creation_date:
           type: string
           format: date
-          example: 01-01-2026
+          example: 2026-01-01
     Member:
       type: object
       properties:
@@ -351,12 +352,12 @@ components:
         birthdate:
           type: string
           format: date
-          example: 10-05-2000
+          example: 2000-10-05
         genre:
           type: string
           enum:
-            -M
-            -F
+            - M
+            - F
         address:
           type: string
           example: Ambohijatovo 101
@@ -372,7 +373,7 @@ components:
         joining_date:
           type: string
           format: date
-          example: 10-10-2024
+          example: 2024-10-10
         sponsors:
           type: array
           minItems: 2
@@ -394,9 +395,9 @@ components:
         payment_method:
           type: string
           enum:
-            -cash
-            -bank
-            -mobile_money
+            - cash
+            - bank
+            - mobile_money
         payment_date:
           type: string
           format: date
@@ -460,10 +461,10 @@ components:
       type: object
       properties:
         memberId:
-          type: String
+          type: string
           example: 1
         relation_Type:
-          type: String
+          type: string
           example: family
     PaymentAdmission:
       type: object
