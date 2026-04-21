@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Agricultural Federation
   description: Agricultural Federation
-  version: 1.0.0
+  version: 1.2.0
 servers:
   - url: 'https://localhost:8080'
 
@@ -30,7 +30,7 @@ paths:
                 type: string
                 example: Condition not respected
 
-  #Add member in a collectivity that already exists
+  #Add new member in a collectivity that already exists
   /collectivities/{collectivityId}/member:
     post:
       parameters:
@@ -39,12 +39,29 @@ paths:
           required: true
           schema:
             type: integer
+
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Member'
+
+      responses:
+        201:
+          description: Member created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
 
   #Add new member in a new collectivity
   /members:
@@ -68,6 +85,7 @@ paths:
               schema:
                 type: string
                 example: Condition not respected
+
 
   #Get contribution of each member in a collectivity
   /collectivity/{collectivityId}/member/{memberId}/contribution:
@@ -270,6 +288,13 @@ components:
           type: string
           format: date
           example: 10-10-2024
+        sponsors:
+          type: array
+          minItems: 2
+          items:
+            $ref: "#/components/schemas/Sponsors"
+        payment:
+            $ref: "#/components/schemas/PaymentAdmission"
         active:
           type: boolean
     Contribution:
@@ -346,6 +371,33 @@ components:
         id_activity:
           type: integer
           example: 1
+    Sponsors:
+      type: object
+      properties:
+        memberId:
+          type: String
+          example: 1
+        relation_Type:
+          type: String
+          example: family
+    PaymentAdmission:
+      type: object
+      properties:
+        fee:
+          type: number
+          minimum: 50000
+          example: 50000
+        annual_contribution:
+          type: number
+          example : 200000
+        payment_type:
+          type: string
+          enum:
+            -bank
+            -mobile_money
+        payment_date:
+          type: string
+          format: date
 
 
 
