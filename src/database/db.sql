@@ -1,3 +1,5 @@
+
+
 CREATE type gender_enum as ENUM('MALE', 'FEMALE');
 CREATE type occupation_enum as ENUM('JUNIOR', 'SENIOR', 'SECRETARY', 'TREASURER', 'VICE_PRESIDENT', 'PRESIDENT');
 CREATE TABLE member(
@@ -15,10 +17,10 @@ CREATE TABLE member(
 );
 create table collectivity_structure(
     id integer primary key,
-    president integer references member (id),
-    vice_president integer references member (id),
-    secretary integer references member (id),
-    treasurer integer references member (id)
+    president varchar(50) references member (id),
+    vice_president varchar(50) references member (id),
+    secretary varchar(50) references member (id),
+    treasurer varchar(50) references member (id)
 );
 
 
