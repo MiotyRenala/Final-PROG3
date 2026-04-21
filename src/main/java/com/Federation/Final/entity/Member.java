@@ -1,17 +1,22 @@
 package com.Federation.Final.entity;
 
 import com.Federation.Final.entity.Enum.GenderEnum;
+import com.Federation.Final.entity.Enum.MemberOccupationEnum;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class Member {
-    private Integer id;
-    private String name;
-    private GenderEnum gengerEnum;
-    private String activity;
+    private String id;
+    private String firstName;
+    private String lastName;
+    private GenderEnum genderEnum;
+    private String address;
     private Float phoneNumber;
     private String email;
-    private Date joining_date;
-    private Boolean active;
+    private String profession;
+    private MemberOccupationEnum memberOccupation;
+    private List<Member> referees;
+
 }
