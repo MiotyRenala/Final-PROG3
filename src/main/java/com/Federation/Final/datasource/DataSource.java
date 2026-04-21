@@ -1,6 +1,6 @@
 package com.Federation.Final.datasource;
 
-import org.springframework.beans.factory.annotation.Configurable;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
 
 import java.sql.Connection;
@@ -9,11 +9,15 @@ import java.sql.SQLException;
 
 @Configuration
 public class DataSource {
-    private String url = "jdbc:postgresql://localhost:5432/federation";
-    private String user = "federation_user";
-    private String password = "123456";
-
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url,user,password);
+    public Connection getConnection(){
+        try{
+            Dotenv dotenv = Dotenv.load();
+            String jdbcURL = dotenv.get("DB_URL");
+            String user = dotenv.get("DB_USER");
+            String password = dotenv.get("DB_PASSWORD");
+            return DriverManager.getConnection(jdbcURL,user,password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
