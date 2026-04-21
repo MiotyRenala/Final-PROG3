@@ -1,0 +1,363 @@
+openapi: 3.1.0
+info:
+  title: Agricultural Federation
+  description: Agricultural Federation
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:8080'
+
+paths:
+  #Creation of new collectivity
+  /collectivities:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collectivitie'
+      responses:
+        201:
+          description: Collectivities created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivitie'
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+
+  #Add member in a collectivity that already exists
+  /collectivities/{collectivityId}/member:
+    post:
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+
+  #Add new member in a new collectivity
+  /members:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+      responses:
+        201:
+          description: Member created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+
+  #Get contribution of each member in a collectivity
+  /collectivity/{collectivityId}/member/{memberId}/contribution:
+    post:
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contribution'
+      responses:
+        201:
+          description: Contribution of a member recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contribution'
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+
+  /collectivity/{collectivityId}/payment:
+    post:
+      description: record of a and payment method.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '200':
+          description: Payment recorded
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+  #Activity
+  /collectivity/{collectivityId}/activity:
+    get:
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Activity returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+
+    post:
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '201':
+          description: Activity created
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+
+  /activity/{activityId}/Attendance:
+    get:
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of attendance returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attendance'
+
+    post:
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attendance'
+      responses:
+        201:
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attendance'
+        403:
+          description: Condition not respected
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Condition not respected
+
+components:
+  schemas:
+    Collectivitie:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Agri-co
+        speciality:
+          type: string
+          example: riz
+        city:
+          type: string
+          example: Antananarivo
+        creation_date:
+          type: string
+          format: date
+          example: 01-01-2026
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: Koto
+        lastName:
+          type: string
+          example: Rahary
+        birthdate:
+          type: string
+          format: date
+          example: 10-05-2000
+        genre:
+          type: string
+          enum:
+            -M
+            -F
+        address:
+          type: string
+          example: Ambohijatovo 101
+        profession:
+          type: string
+          example: Accountant
+        phone_number:
+          type: string
+          example: +261322222223
+        email_address:
+          type: string
+          example: koto@gmail.com
+        joining_date:
+          type: string
+          format: date
+          example: 10-10-2024
+        active:
+          type: boolean
+    Contribution:
+      type: object
+      properties:
+        payment_frequency:
+          type: string
+          enum:
+            -monthly
+            -yearly
+            -punctual
+        payment_method:
+          type: string
+          enum:
+            -cash
+            -bank
+            -mobile_money
+        payment_date:
+          type: string
+          format: date
+        id_collectivity:
+          type: integer
+          example: 1
+        id_membership:
+          type: integer
+          example: 1
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        payment_type:
+          type: string
+          enum:
+            -cash
+            -bank
+            -mobile_money
+        reason:
+          type: string
+          enum:
+            -membership
+            -contribution
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        id_collectivity:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date
+        id_federation:
+          type: integer
+          example: 1
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        id_membership:
+          type: integer
+          example: 1
+        present:
+          type : string
+          enum:
+            -present
+            -apologized
+            -missing
+        id_activity:
+          type: integer
+          example: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
