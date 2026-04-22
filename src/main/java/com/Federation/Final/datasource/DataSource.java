@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 @Configuration
 public class DataSource {
+
     public Connection getConnection(){
         try{
             Dotenv dotenv = Dotenv.load();
