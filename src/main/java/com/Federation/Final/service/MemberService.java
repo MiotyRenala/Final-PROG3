@@ -4,6 +4,7 @@ import com.Federation.Final.entity.Member;
 import com.Federation.Final.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class MemberService {
 
         for (Member member : members) {
 
-            List<String> referees = member.getRefereesId();
+            Map<String, String> referees = member.getRefereesInfo();
 
             // rule 1
             if (referees == null || referees.size() < 2) {
@@ -28,12 +29,12 @@ public class MemberService {
 
             // get Referees'collectivities
             Map<String, String> refereesCollectivities =
-                    memberRepository.getRefereesCollectivities(referees);
+                    memberRepository.getRefereesCollectivities(new ArrayList<>(referees.keySet()));
 
             int same = 0;
             int other = 0;
 
-            for (String refereeId : referees) {
+            for (String refereeId : referees.keySet()) {
                 String collectivity = refereesCollectivities.get(refereeId);
 
                 if (collectivity.equals(member.getCollectivityId())) {
@@ -48,6 +49,12 @@ public class MemberService {
                 throw new RuntimeException(
                         "Inscription declined : there should be at least one referee from the collectivity to enter"
                 );
+            }
+
+            for (Map.Entry<String, String> e : referees.entrySet()) {
+                if (e.getValue() == null || e.getValue().isBlank()) {
+                    throw new RuntimeException("Relationship obligatory " + e.getKey());
+                }
             }
         }
 

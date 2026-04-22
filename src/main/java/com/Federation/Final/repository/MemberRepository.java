@@ -18,6 +18,18 @@ import lombok.*;
 public class MemberRepository {
     Connection connection;
 
+    private String encodeReferees(Map<String, String> referees) {
+
+        if (referees == null || referees.isEmpty()) {
+            return null;
+        }
+
+        return referees.entrySet()
+                .stream()
+                .map(e -> e.getKey() + ":" + e.getValue())
+                .collect(Collectors.joining(","));
+    }
+
     public List<Member> createMembers(List<Member> members){
 
         try{
@@ -40,8 +52,9 @@ public class MemberRepository {
                 preparedStatement.setFloat(8, member.getPhoneNumber());
                 preparedStatement.setString(9, member.getEmail());
                 preparedStatement.setString(10, member.getMemberOccupation().name());
-                preparedStatement.setString(11, member.getRefereesId().get(1));
-                preparedStatement.setString(11, member.getRefereesId().get(2));
+                preparedStatement.setString(11,member.getCollectivityId());
+                preparedStatement.setString(12, encodeReferees(member.getRefereesInfo()));
+
 
                 preparedStatement.executeUpdate();
             }
