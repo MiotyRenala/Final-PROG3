@@ -94,7 +94,7 @@ create table cash_account(
     amount numeric(12,2) check ( amount>0 )
 );
 
-create type account_type_enum as enum ('CASH','BANK','MOBILE_MONEY')
+create type account_type_enum as enum ('CASH','BANK','MOBILE_MONEY');
 create table financial_account(
     account_id varchar(50) primary key ,
     account_type account_type_enum
