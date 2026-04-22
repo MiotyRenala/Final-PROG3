@@ -30,18 +30,15 @@ public class CollectivityRepository {
             PreparedStatement ps = conn.prepareStatement(insertCollectivitySql)) {
             for(Collectivity c: collectivities){
                 for (Member m : c.getMembers()){
-                    ps.setString(1, c.getId());
+                    ps.setString(1, String.valueOf(c.getId()));
                     ps.setString(2, c.getLocation());
                     ps.setInt(3, c.getCollectivityStructure().getId());
                     ps.setString(4,m.getId());
+                    ps.setDouble(5,c.getAmountDues());
 
                     ps.executeUpdate();
                 }
-
             }
-
-
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

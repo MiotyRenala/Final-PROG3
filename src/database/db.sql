@@ -31,3 +31,4 @@ CREATE TABLE Collectivity(
     member_id varchar(50) references member (id)
 )
 
+ALTER TABLE collectivity ADD COLUMN dues_amount DOUBLE;
