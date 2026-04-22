@@ -14,6 +14,7 @@ CREATE TABLE member(
                        email varchar(50),
                        occupation occupation_enum,
     referee_id varchar(50) references  member (id)
+
 );
 create table collectivity_structure(
     id integer primary key,
@@ -47,3 +48,10 @@ ALTER table Collectivity DROP column structure_id;
 ALTER table Collectivity DROP column member_id;
 ALTER table Collectivity ADD COLUMN federation_approval boolean;
 ALTER table Collectivity ADD COLUMN creation_date date;
+
+
+ALTER table member drop column referee_id;
+ALTER table member add column collectivity_id varchar(50) references Collectivity (id);
+ALTER table member add column membership_date date;
+ALTER table member add column active boolean default true;
+
