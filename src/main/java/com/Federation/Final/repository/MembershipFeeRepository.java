@@ -101,7 +101,7 @@ public class MembershipFeeRepository {
 
     public boolean existsCollectivityById(String collectivityId) {
 
-        String sql = "SELECT COUNT(*) FROM collectivity WHERE id = ?";
+        String sql = "SELECT COUNT (id) FROM collectivity WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
