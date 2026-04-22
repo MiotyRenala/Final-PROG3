@@ -6,8 +6,12 @@ import com.Federation.Final.entity.Member;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.*;
 
 @Repository
@@ -46,5 +50,37 @@ public class MemberRepository {
         }
 
         return members;
+    }
+
+    public Map<String, String> getRefereesCollectivities(List<String> refereeIds) {
+
+        Map<String, String> result = new HashMap<>();
+
+        String placeholders = refereeIds.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(","));
+
+        String sql = "SELECT id, collectivity_id FROM member WHERE id IN (" + placeholders + ")";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < refereeIds.size(); i++) {
+                ps.setString(i + 1, refereeIds.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                result.put(
+                        rs.getString("id"),
+                        rs.getString("collectivity_id")
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 }
