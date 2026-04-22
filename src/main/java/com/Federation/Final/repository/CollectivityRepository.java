@@ -20,6 +20,7 @@ public class CollectivityRepository {
     private final DataSource dataSource;
 
     public CollectivityRepository(DataSource dataSource) {
+
         this.dataSource = dataSource;
     }
 
@@ -30,6 +31,7 @@ public class CollectivityRepository {
             conn.setAutoCommit(false);
 
             String id = UUID.randomUUID().toString();
+
             // 1. Insert collectivity
             String sqlColl = "INSERT INTO collectivity (id, location, creation_date, federation_approval) VALUES (?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sqlColl)) {

@@ -29,7 +29,7 @@ CREATE TABLE Collectivity(
                              location varchar(50),
     structure_id integer references collectivity_structure (id),
     member_id varchar(50) references member (id)
-)
+);
 
 ALTER TABLE collectivity ADD COLUMN dues_amount DOUBLE;
 
@@ -43,3 +43,7 @@ CREATE TABLE membership_fee (
                                 collectivity_id VARCHAR(50) NOT NULL
 );
 
+ALTER table Collectivity DROP column structure_id;
+ALTER table Collectivity DROP column member_id;
+ALTER table Collectivity ADD COLUMN federation_approval boolean;
+ALTER table Collectivity ADD COLUMN creation_date date;
