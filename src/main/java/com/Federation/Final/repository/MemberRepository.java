@@ -1,119 +1,90 @@
 package com.Federation.Final.repository;
 
+import com.Federation.Final.datasource.DataSource;
 import com.Federation.Final.entity.Enum.GenderEnum;
 import com.Federation.Final.entity.Enum.MemberOccupationEnum;
 import com.Federation.Final.entity.Member;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.*;
 
 @Repository
 public class MemberRepository {
-    Connection connection;
+    private final DataSource datasource;
 
-    private String encodeReferees(Map<String, String> referees) {
-
-        if (referees == null || referees.isEmpty()) {
-            return null;
-        }
-
-        return referees.entrySet()
-                .stream()
-                .map(e -> e.getKey() + ":" + e.getValue())
-                .collect(Collectors.joining(","));
+    public MemberRepository(DataSource datasource) {
+        this.datasource = datasource;
     }
 
-    public List<Member> createMembers(List<Member> members){
-
-        try{
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO member (" +
-                            "id, first_name, last_name, birth_date, gender, address, profession, " +
-                            "phone_number, email, occupation, referee_id" +
-                            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            );
-            for (Member member : members) {
-
-                preparedStatement.setString(1, member.getId());
-                preparedStatement.setString(2, member.getFirstName());
-                preparedStatement.setString(3, member.getLastName());
-                Timestamp  birthDate = Timestamp.valueOf(member.getBirthDate().atStartOfDay());
-                preparedStatement.setTimestamp(4,birthDate);
-                preparedStatement.setString(5, member.getGenderEnum().name());
-                preparedStatement.setString(6, member.getAddress());
-                preparedStatement.setString(7, member.getProfession());
-                preparedStatement.setFloat(8, member.getPhoneNumber());
-                preparedStatement.setString(9, member.getEmail());
-                preparedStatement.setString(10, member.getMemberOccupation().name());
-                preparedStatement.setString(11,member.getCollectivityId());
-                preparedStatement.setString(12, encodeReferees(member.getRefereesInfo()));
-
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return members;
-    }
-
-    public double getCollectivityDues(String collectivityId) {
-
-        String sql = "SELECT dues_amount FROM collectivity WHERE id = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setString(1, collectivityId);
-
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getDouble("dues_amount");
-            }
-
-            throw new RuntimeException("Collectivity not found");
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public Optional<Member> findById(String id) throws SQLException {
+        String sql = "SELECT * FROM member WHERE id = ?";
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return Optional.of(map(rs));
+            return Optional.empty();
         }
     }
 
-    public Map<String, String> getRefereesCollectivities(List<String> refereeIds) {
-
-        Map<String, String> result = new HashMap<>();
-
-        String placeholders = refereeIds.stream()
-                .map(id -> "?")
-                .collect(Collectors.joining(","));
-
-        String sql = "SELECT id, collectivity_id FROM member WHERE id IN (" + placeholders + ")";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            for (int i = 0; i < refereeIds.size(); i++) {
-                ps.setString(i + 1, refereeIds.get(i));
-            }
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                result.put(
-                        rs.getString("id"),
-                        rs.getString("collectivity_id")
-                );
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public List<Member> findByIds(List<String> ids) throws SQLException {
+        if (ids == null || ids.isEmpty()) return List.of();
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sql = "SELECT * FROM member WHERE id IN (" + placeholders + ")";
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < ids.size(); i++) stmt.setString(i+1, ids.get(i));
+            ResultSet rs = stmt.executeQuery();
+            List<Member> members = new ArrayList<>();
+            while (rs.next()) members.add(map(rs));
+            return members;
         }
+    }
 
-        return result;
+    public Member save(Member m) throws SQLException {
+        String sql = "INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession, phone_number, email, occupation, collectivity_id, active, membership_date) VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?, ?, ?, ?::member_occupation_enum, ?, ?, ?)";
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String id = UUID.randomUUID().toString();
+            stmt.setString(1, id);
+            stmt.setString(2, m.getFirstName());
+            stmt.setString(3, m.getLastName());
+            stmt.setDate(4, Date.valueOf(m.getBirthDate()));
+            stmt.setString(5, m.getGender().name());
+            stmt.setString(6, m.getAddress());
+            stmt.setString(7, m.getProfession());
+            stmt.setString(8, m.getPhoneNumber());
+            stmt.setString(9, m.getEmail());
+            stmt.setString(10, m.getOccupation().name());
+            stmt.setString(11, m.getCollectivityId());
+            stmt.setBoolean(12, m.isActive());
+            stmt.setDate(13, Date.valueOf(m.getMembershipDate()));
+            stmt.executeUpdate();
+            m.setId(id);
+            return m;
+        }
+    }
+
+    private Member map(ResultSet rs) throws SQLException {
+        Member m = new Member();
+        m.setId(rs.getString("id"));
+        m.setFirstName(rs.getString("first_name"));
+        m.setLastName(rs.getString("last_name"));
+        m.setBirthDate(rs.getDate("birth_date").toLocalDate());
+        m.setGender(GenderEnum.valueOf(rs.getString("gender")));
+        m.setAddress(rs.getString("address"));
+        m.setProfession(rs.getString("profession"));
+        m.setPhoneNumber(rs.getString("phone_number"));
+        m.setEmail(rs.getString("email"));
+        m.setOccupation(MemberOccupationEnum.valueOf(rs.getString("occupation")));
+        m.setCollectivityId(rs.getString("collectivity_id"));
+        m.setActive(rs.getBoolean("active"));
+        m.setMembershipDate(rs.getDate("membership_date").toLocalDate());
+        return m;
     }
 }

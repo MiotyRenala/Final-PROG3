@@ -1,7 +1,10 @@
 package com.Federation.Final.entity.dto;
 
+import lombok.Data;
+
 import java.util.List;
 
+@Data
 public class CreateMember {
     private String collectivityIdentifier;
     private List<String> referees;

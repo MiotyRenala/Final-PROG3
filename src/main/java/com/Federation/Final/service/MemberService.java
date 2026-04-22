@@ -1,9 +1,13 @@
 package com.Federation.Final.service;
 
 import com.Federation.Final.entity.Member;
+import com.Federation.Final.entity.dto.CreateMember;
+import com.Federation.Final.entity.dto.MemberResponse;
+import com.Federation.Final.entity.validator.MemberValidator;
 import com.Federation.Final.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,84 +15,49 @@ import java.util.Map;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberValidator validator;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, MemberValidator validator) {
         this.memberRepository = memberRepository;
+        this.validator = validator;
     }
 
-    public List<Member> createMembers(List<Member> members) {
+    public List<MemberResponse> createMembers(List<CreateMember> dtos) throws Exception {
+        List<MemberResponse> responses = new java.util.ArrayList<>();
+        for (CreateMember dto : dtos) {
+            validator.validate(dto);
+            Member member = new Member();
+            member.setFirstName(dto.getMemberInfo().getFirstName());
+            member.setLastName(dto.getMemberInfo().getLastName());
+            member.setBirthDate(dto.getMemberInfo().getBirthDate());
+            member.setGender(dto.getMemberInfo().getGender());
+            member.setAddress(dto.getMemberInfo().getAddress());
+            member.setProfession(dto.getMemberInfo().getProfession());
+            member.setPhoneNumber(dto.getMemberInfo().getPhoneNumber());
+            member.setEmail(dto.getMemberInfo().getEmail());
+            member.setOccupation(dto.getMemberInfo().getOccupation());
+            member.setCollectivityId(dto.getCollectivityIdentifier());
+            member.setActive(true);
+            member.setMembershipDate(LocalDate.now());
+            member = memberRepository.save(member);
 
-        for (Member member : members) {
-
-            Map<String, String> referees = member.getRefereesInfo();
-
-            // rule 1
-            if (referees == null || referees.size() < 2) {
-                throw new RuntimeException("2 referees minimum required");
-            }
-
-            // get Referees'collectivities
-            Map<String, String> refereesCollectivities =
-                    memberRepository.getRefereesCollectivities(new ArrayList<>(referees.keySet()));
-
-            int same = 0;
-            int other = 0;
-
-            for (String refereeId : referees.keySet()) {
-                String collectivity = refereesCollectivities.get(refereeId);
-
-                if (collectivity.equals(member.getCollectivityId())) {
-                    same++;
-                } else {
-                    other++;
-                }
-            }
-
-            // rule 2
-            if (same < 1 && other > 1) {
-                throw new RuntimeException(
-                        "Inscription declined : there should be at least one referee from the collectivity to enter"
-                );
-            }
-
-            for (Map.Entry<String, String> e : referees.entrySet()) {
-                if (e.getValue() == null || e.getValue().isBlank()) {
-                    throw new RuntimeException("Relationship obligatory " + e.getKey());
-                }
-            }
-            double collectivityDues =
-                    memberRepository.getCollectivityDues(member.getCollectivityId());
-
-            validatePayment(member, collectivityDues);
+            List<Member> referees = memberRepository.findByIds(dto.getReferees());
+            MemberResponse resp = new MemberResponse();
+            resp.setId(member.getId());
+            resp.setFirstName(member.getFirstName());
+            resp.setLastName(member.getLastName());
+            resp.setBirthDate(member.getBirthDate());
+            resp.setGender(member.getGender());
+            resp.setAddress(member.getAddress());
+            resp.setProfession(member.getProfession());
+            resp.setPhoneNumber(member.getPhoneNumber());
+            resp.setEmail(member.getEmail());
+            resp.setOccupation(member.getOccupation());
+            resp.setReferees(referees);
+            responses.add(resp);
         }
-
-        return memberRepository.createMembers(members);
+        return responses;
     }
 
-    public void validatePayment(Member member, double collectivityDues) {
 
-        double requiredRegistrationFee = 50_000;
-        double requiredTotal = requiredRegistrationFee + collectivityDues;
-
-        if (!member.isRegistrationFeePaid()) {
-            throw new RuntimeException("Registration Fee unpaid");
-        }
-
-        if (member.getRegistrationFeeAmount() < requiredRegistrationFee) {
-            throw new RuntimeException("Registration Fee insufficient");
-        }
-
-        if (!member.isMembershipDuesPaid()) {
-            throw new RuntimeException("Contribution Fee unpaid");
-        }
-
-        if (member.getMembershipDuesAmount() < collectivityDues) {
-            throw new RuntimeException("Contribution Fee insufficient");
-        }
-        double totalPaid = member.getRegistrationFeeAmount() + member.getMembershipDuesAmount();
-
-        if (totalPaid < requiredTotal) {
-            throw new RuntimeException("Total amount dues insufficient");
-        }
-    }
 }

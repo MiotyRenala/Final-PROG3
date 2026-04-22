@@ -16,21 +16,15 @@ public class Member {
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
-    private GenderEnum genderEnum;
+    private GenderEnum gender;
     private String address;
-    private Float phoneNumber;
-    private String email;
     private String profession;
-    private MemberOccupationEnum memberOccupation;
-
-    private Map<String, String> refereesInfo;
-    private String CollectivityId;
-
-    private boolean registrationFeePaid;
-    private double registrationFeeAmount;
-
-    private boolean membershipDuesPaid;
-    private double membershipDuesAmount;
+    private String phoneNumber;
+    private String email;
+    private MemberOccupationEnum occupation;
+    private String collectivityId;
+    private boolean active;
+    private LocalDate membershipDate;
 
 
 }

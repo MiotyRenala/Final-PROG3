@@ -1,61 +1,70 @@
 package com.Federation.Final.service;
 
 import com.Federation.Final.entity.Collectivity;
-import com.Federation.Final.entity.CollectivityStructure;
 import com.Federation.Final.entity.Member;
+import com.Federation.Final.entity.dto.CollectivityResponse;
+import com.Federation.Final.entity.dto.CollectivityStructure;
+import com.Federation.Final.entity.dto.CreateCollectivity;
+import com.Federation.Final.entity.dto.CreateCollectivityStructure;
+import com.Federation.Final.entity.validator.CollectivityValidator;
 import com.Federation.Final.repository.CollectivityRepository;
+import com.Federation.Final.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class CollectivityService {
 
-    private final CollectivityRepository repository;
+    private final CollectivityRepository collectivityRepository;
+    private final MemberRepository memberRepository;
+    private final CollectivityValidator validator;
 
-    public CollectivityService(CollectivityRepository repository) {
-        this.repository = repository;
+    public CollectivityService(CollectivityRepository collectivityRepository,
+                               MemberRepository memberRepository,
+                               CollectivityValidator validator) {
+        this.collectivityRepository = collectivityRepository;
+        this.memberRepository = memberRepository;
+        this.validator = validator;
     }
 
-    public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
+    public List<CollectivityResponse> createCollectivities(List<CreateCollectivity> dtos) throws Exception {
+        List<CollectivityResponse> responses = new java.util.ArrayList<>();
+        for (CreateCollectivity dto : dtos) {
+            validator.validate(dto);
+            List<Member> members = memberRepository.findByIds(dto.getMembers());
+            CreateCollectivityStructure structDto = dto.getStructure();
+            Member president = memberRepository.findById(structDto.getPresident()).orElseThrow();
+            Member vicePresident = memberRepository.findById(structDto.getVicePresident()).orElseThrow();
+            Member treasurer = memberRepository.findById(structDto.getTreasurer()).orElseThrow();
+            Member secretary = memberRepository.findById(structDto.getSecretary()).orElseThrow();
 
-        if (collectivities == null || collectivities.isEmpty()) {
-            throw new RuntimeException("Collectivities list cannot be empty");
+            Collectivity collectivity = new Collectivity();
+            collectivity.setLocation(dto.getLocation());
+            collectivity.setMembers(members);
+            collectivity.setPresident(president);
+            collectivity.setVicePresident(vicePresident);
+            collectivity.setTreasurer(treasurer);
+            collectivity.setSecretary(secretary);
+            collectivity.setCreationDate(LocalDate.now());
+            collectivity.setFederationApproval(dto.isFederationApproval());
+
+            collectivity = collectivityRepository.save(collectivity);
+
+            CollectivityResponse resp = new CollectivityResponse();
+            resp.setId(collectivity.getId());
+            resp.setLocation(collectivity.getLocation());
+            com.Federation.Final.entity.dto.CollectivityStructure structResp = new CollectivityStructure();
+            structResp.setPresident(president);
+            structResp.setVicePresident(vicePresident);
+            structResp.setTreasurer(treasurer);
+            structResp.setSecretary(secretary);
+            resp.setStructure(structResp);
+            resp.setMembers(members);
+            responses.add(resp);
         }
-
-        for (Collectivity c : collectivities) {
-
-            if (c.getCollectivityStructure() == null) {
-                throw new RuntimeException("Structure is required");
-            }
-
-            CollectivityStructure s = c.getCollectivityStructure();
-
-            if (s.getPresident() == null ||
-                    s.getVicePresident() == null ||
-                    s.getSecretary() == null ||
-                    s.getTreasurer() == null) {
-
-                throw new RuntimeException("All structure roles are required");
-            }
-
-
-            if (c.getMembers().size() == 10) {
-                throw new RuntimeException("10 members allowed per collectivity");
-            }
-
-            if (!c.isFederationApproval()) {
-                throw new RuntimeException("Federation approval required");
-            }
-
-            for (Member m : c.getMembers()) {
-                if (m.getId() == null) {
-                    throw new RuntimeException("Member ID missing");
-                }
-            }
-        }
-
-        return repository.createCollectivities(collectivities);
+        return responses;
     }
 
 }

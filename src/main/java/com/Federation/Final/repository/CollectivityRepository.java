@@ -8,10 +8,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class CollectivityRepository {
@@ -21,28 +23,66 @@ public class CollectivityRepository {
         this.dataSource = dataSource;
     }
 
-    public List<Collectivity> createCollectivities(List<Collectivity> collectivities){
+    public Collectivity save(Collectivity c) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            conn.setAutoCommit(false);
 
-        String insertCollectivitySql = "INSERT INTO collectivity (id,location, structure_id, member_id) " +
-                "VALUES(?, ?, ?, ?)";
-
-        try(Connection conn = dataSource.getConnection();
-            PreparedStatement ps = conn.prepareStatement(insertCollectivitySql)) {
-            for(Collectivity c: collectivities){
-                for (Member m : c.getMembers()){
-                    ps.setString(1, String.valueOf(c.getId()));
-                    ps.setString(2, c.getLocation());
-                    ps.setInt(3, c.getCollectivityStructure().getId());
-                    ps.setString(4,m.getId());
-                    ps.setDouble(5,c.getAmountDues());
-
-                    ps.executeUpdate();
-                }
+            String id = UUID.randomUUID().toString();
+            // 1. Insert collectivity
+            String sqlColl = "INSERT INTO collectivity (id, location, creation_date, federation_approval) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlColl)) {
+                stmt.setString(1, id);
+                stmt.setString(2, c.getLocation());
+                stmt.setDate(3, Date.valueOf(c.getCreationDate()));
+                stmt.setBoolean(4, c.isFederationApproval());
+                stmt.executeUpdate();
             }
+            c.setId(id);
+
+            // 2. Update members with collectivity_id
+            String sqlUpd = "UPDATE member SET collectivity_id = ? WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlUpd)) {
+                for (Member m : c.getMembers()) {
+                    stmt.setString(1, id);
+                    stmt.setString(2, m.getId());
+                    stmt.addBatch();
+                }
+                stmt.executeBatch();
+            }
+
+            // 3. Insert structure (roles)
+            String sqlStruct = "INSERT INTO collectivity_structure (collectivity_id, role, member_id) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlStruct)) {
+                stmt.setString(1, id);
+                stmt.setString(2, "PRESIDENT");
+                stmt.setString(3, c.getPresident().getId());
+                stmt.addBatch();
+                stmt.setString(2, "VICE_PRESIDENT");
+                stmt.setString(3, c.getVicePresident().getId());
+                stmt.addBatch();
+                stmt.setString(2, "TREASURER");
+                stmt.setString(3, c.getTreasurer().getId());
+                stmt.addBatch();
+                stmt.setString(2, "SECRETARY");
+                stmt.setString(3, c.getSecretary().getId());
+                stmt.addBatch();
+                stmt.executeBatch();
+            }
+
+            conn.commit();
+            return c;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            if (conn != null) conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
         }
-        return collectivities;
     }
+
 
 }

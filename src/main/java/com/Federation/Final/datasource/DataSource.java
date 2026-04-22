@@ -2,12 +2,13 @@ package com.Federation.Final.datasource;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@Configuration
+@Component
 public class DataSource {
 
     public Connection getConnection(){
