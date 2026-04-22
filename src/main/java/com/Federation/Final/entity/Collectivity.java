@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 public class Collectivity {
     private String id;
+    private String identificationNumber;
+    private String name;
     private String location;
     private List<Member> members;
     private Member president;

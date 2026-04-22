@@ -29,6 +29,10 @@ CREATE TABLE Collectivity(
                              location varchar(50),
     structure_id integer references collectivity_structure (id),
     member_id varchar(50) references member (id)
-)
+);
 
 ALTER TABLE collectivity ADD COLUMN dues_amount DOUBLE;
+
+ALTER TABLE collectivity
+    ADD COLUMN identification_number VARCHAR(20) UNIQUE,
+    ADD COLUMN name VARCHAR(100) UNIQUE;

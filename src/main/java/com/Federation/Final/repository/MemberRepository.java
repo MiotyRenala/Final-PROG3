@@ -70,7 +70,7 @@ public class MemberRepository {
         }
     }
 
-    private Member map(ResultSet rs) throws SQLException {
+    public Member map(ResultSet rs) throws SQLException {
         Member m = new Member();
         m.setId(rs.getString("id"));
         m.setFirstName(rs.getString("first_name"));
@@ -86,5 +86,18 @@ public class MemberRepository {
         m.setActive(rs.getBoolean("active"));
         m.setMembershipDate(rs.getDate("membership_date").toLocalDate());
         return m;
+    }
+    public List<Member> findByCollectivityId(String collectivityId, Boolean actif) throws SQLException {
+        String sql = "SELECT * FROM member WHERE collectivity_id = ?";
+        if (actif != null) sql += " AND actif = ?";
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, collectivityId);
+            if (actif != null) stmt.setBoolean(2, actif);
+            ResultSet rs = stmt.executeQuery();
+            List<Member> list = new ArrayList<>();
+            while (rs.next()) list.add(map(rs));
+            return list;
+        }
     }
 }
