@@ -55,3 +55,47 @@ ALTER table member add column collectivity_id varchar(50) references Collectivit
 ALTER table member add column membership_date date;
 ALTER table member add column active boolean default true;
 
+create type payment_mode_enum as enum ('CASH','MOBILE_BANKING','BANK_TRANSFER');
+Create table collectivity_transaction(
+    id varchar(50) PRIMARY KEY ,
+    collectivity_id varchar(50) references Collectivity (id) not null,
+    creation_date date not null,
+    amount numeric(12,2) not null,
+    payment_mode payment_mode_enum not null,
+    account_credited_id varchar(50) not null,
+    member_debited_id varchar(50) references member(id)
+
+);
+
+create type bank_enum as enum('BRED' ,'MCB','BMOI','BOA','BGFI','AFG','ACCES_BAQUE','BAOBAB','SIPEM');
+create table bank_account(
+  id varchar(50) primary key references financial_account(account_id),
+  holder_name varchar(50) not null,
+  bank_name bank_enum not null,
+  bank_code int not null,
+    bank_branch_code int,
+    bank_account_code int,
+    bank_account_key int,
+    amount numeric(12,2) not null check ( amount > 0 )
+
+);
+
+create type mobile_banking_service_enum as enum ('AIRTEL_MONEY', 'MVOLA','ORANGE_MONEY')
+create table mobile_banking_account(
+    id varchar(50) primary key references financial_account(account_id) ,
+    holder_name varchar(50) not null,
+    mobile_banking_service mobile_banking_service_enum,
+    mobile_number int,
+    amount numeric(12,2) check ( amount >0 )
+);
+
+create table cash_account(
+    id varchar(50) primary key references financial_account(account_id),
+    amount numeric(12,2) check ( amount>0 )
+);
+
+create type account_type_enum as enum ('CASH','BANK','MOBILE_MONEY')
+create table financial_account(
+    account_id varchar(50) primary key ,
+    account_type account_type_enum
+);
