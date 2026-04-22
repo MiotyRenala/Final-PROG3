@@ -56,8 +56,39 @@ public class MemberService {
                     throw new RuntimeException("Relationship obligatory " + e.getKey());
                 }
             }
+            double collectivityDues =
+                    memberRepository.getCollectivityDues(member.getCollectivityId());
+
+            validatePayment(member, collectivityDues);
         }
 
         return memberRepository.createMembers(members);
+    }
+
+    public void validatePayment(Member member, double collectivityDues) {
+
+        double requiredRegistrationFee = 50_000;
+        double requiredTotal = requiredRegistrationFee + collectivityDues;
+
+        if (!member.isRegistrationFeePaid()) {
+            throw new RuntimeException("Registration Fee unpaid");
+        }
+
+        if (member.getRegistrationFeeAmount() < requiredRegistrationFee) {
+            throw new RuntimeException("Registration Fee insufficient");
+        }
+
+        if (!member.isMembershipDuesPaid()) {
+            throw new RuntimeException("Contribution Fee unpaid");
+        }
+
+        if (member.getMembershipDuesAmount() < collectivityDues) {
+            throw new RuntimeException("Contribution Fee insufficient");
+        }
+        double totalPaid = member.getRegistrationFeeAmount() + member.getMembershipDuesAmount();
+
+        if (totalPaid < requiredTotal) {
+            throw new RuntimeException("Total amount dues insufficient");
+        }
     }
 }

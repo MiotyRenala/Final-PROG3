@@ -55,7 +55,6 @@ public class MemberRepository {
                 preparedStatement.setString(11,member.getCollectivityId());
                 preparedStatement.setString(12, encodeReferees(member.getRefereesInfo()));
 
-
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -63,6 +62,27 @@ public class MemberRepository {
         }
 
         return members;
+    }
+
+    public double getCollectivityDues(String collectivityId) {
+
+        String sql = "SELECT dues_amount FROM collectivity WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, collectivityId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("dues_amount");
+            }
+
+            throw new RuntimeException("Collectivity not found");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Map<String, String> getRefereesCollectivities(List<String> refereeIds) {

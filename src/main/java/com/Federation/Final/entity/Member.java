@@ -26,6 +26,11 @@ public class Member {
     private Map<String, String> refereesInfo;
     private String CollectivityId;
 
+    private boolean registrationFeePaid;
+    private double registrationFeeAmount;
+
+    private boolean membershipDuesPaid;
+    private double membershipDuesAmount;
 
 
 }
