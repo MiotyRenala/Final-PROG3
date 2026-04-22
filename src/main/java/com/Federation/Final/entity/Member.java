@@ -26,22 +26,6 @@ public class Member {
     private Map<String, String> refereesInfo;
     private String CollectivityId;
 
-    private Map<String, String> decodeReferees(String data) {
 
-        Map<String, String> map = new HashMap<>();
-
-        if (data == null || data.isEmpty()) {
-            return map;
-        }
-
-        String[] pairs = data.split(",");
-
-        for (String pair : pairs) {
-            String[] parts = pair.split(":");
-            map.put(parts[0], parts[1]);
-        }
-
-        return map;
-    }
 
 }
