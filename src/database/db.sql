@@ -32,3 +32,4 @@ CREATE TABLE Collectivity(
 )
 
 ALTER TABLE collectivity ADD COLUMN dues_amount DOUBLE;
+
