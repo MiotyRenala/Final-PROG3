@@ -33,3 +33,13 @@ CREATE TABLE Collectivity(
 
 ALTER TABLE collectivity ADD COLUMN dues_amount DOUBLE;
 
+CREATE TABLE membership_fee (
+                                id VARCHAR(50) PRIMARY KEY,
+                                eligible_from DATE NOT NULL,
+                                frequency VARCHAR(20) NOT NULL,
+                                amount DECIMAL(10,2) NOT NULL,
+                                label VARCHAR(255),
+                                status VARCHAR(20) NOT NULL,
+                                collectivity_id VARCHAR(50) NOT NULL
+);
+
