@@ -4,10 +4,12 @@ import com.Federation.Final.entity.Enum.MemberOccupationEnum;
 import com.Federation.Final.entity.Member;
 import com.Federation.Final.entity.dto.CreateMember;
 import com.Federation.Final.repository.MemberRepository;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.List;
 
+@Component
 public class MemberValidator {
     private final MemberRepository memberRepository;
 
