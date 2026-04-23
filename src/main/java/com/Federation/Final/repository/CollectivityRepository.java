@@ -13,11 +13,9 @@ public class CollectivityRepository {
     private final DataSource dataSource;
 
     public CollectivityRepository(DataSource dataSource) {
-
         this.dataSource = dataSource;
     }
 
-    
     public Collectivity save(Collectivity c) throws SQLException {
         Connection conn = null;
         try {
@@ -81,6 +79,7 @@ public class CollectivityRepository {
             }
         }
     }
+
     public boolean existsById(String id) throws SQLException {
         String sql = "SELECT COUNT(*) FROM collectivity WHERE id = ?";
 
@@ -93,10 +92,10 @@ public class CollectivityRepository {
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
-
             return false;
         }
     }
+
     public Collectivity findById(String id) throws SQLException {
         String sql = "SELECT id, name, number, location, creation_date, federation_approval FROM collectivity WHERE id = ?";
 
@@ -116,10 +115,48 @@ public class CollectivityRepository {
                 collectivity.setFederationApproval(rs.getBoolean("federation_approval"));
                 return collectivity;
             }
-
             return null;
         }
     }
 
+    // Nouvelle méthode pour charger la structure
+    public void loadStructure(Collectivity collectivity) throws SQLException {
+        String sql = """
+            SELECT cs.role, cs.member_id, m.first_name, m.last_name, m.occupation
+            FROM collectivity_structure cs
+            JOIN member m ON cs.member_id = m.id
+            WHERE cs.collectivity_id = ?
+        """;
 
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, collectivity.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String role = rs.getString("role");
+                Member member = new Member();
+                member.setId(rs.getString("member_id"));
+                member.setFirstName(rs.getString("first_name"));
+                member.setLastName(rs.getString("last_name"));
+                member.setOccupation(com.Federation.Final.entity.Enum.MemberOccupationEnum.valueOf(rs.getString("occupation")));
+
+                switch (role) {
+                    case "PRESIDENT":
+                        collectivity.setPresident(member);
+                        break;
+                    case "VICE_PRESIDENT":
+                        collectivity.setVicePresident(member);
+                        break;
+                    case "TREASURER":
+                        collectivity.setTreasurer(member);
+                        break;
+                    case "SECRETARY":
+                        collectivity.setSecretary(member);
+                        break;
+                }
+            }
+        }
+    }
 }

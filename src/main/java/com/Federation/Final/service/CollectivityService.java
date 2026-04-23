@@ -75,7 +75,7 @@ public class CollectivityService {
 
         List<Member> members = memberRepository.findByCollectivityId(id);
         collectivity.setMembers(members);
-
+        collectivityRepository.loadStructure(collectivity);
 
 
         return collectivity;
