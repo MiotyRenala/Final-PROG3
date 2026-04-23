@@ -33,6 +33,7 @@ public class CollectivityService {
         for (CreateCollectivity dto : dtos) {
             validator.validate(dto);
             List<Member> members = memberRepository.findByIds(dto.getMembers());
+            
             CreateCollectivityStructure structDto = dto.getStructure();
             Member president = memberRepository.findById(structDto.getPresident()).orElseThrow();
             Member vicePresident = memberRepository.findById(structDto.getVicePresident()).orElseThrow();

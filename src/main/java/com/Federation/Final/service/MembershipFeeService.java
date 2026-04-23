@@ -27,7 +27,6 @@ public class MembershipFeeService {
 
     public List<MembershipFee> createAll(String collectivityId, List<MembershipFee> fees) {
 
-
         if (!membershipFeeRepository.existsCollectivityById(collectivityId)) {
             throw new RuntimeException("Collectivity not found");
         }

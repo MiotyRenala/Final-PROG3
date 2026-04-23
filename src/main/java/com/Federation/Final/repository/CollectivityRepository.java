@@ -20,6 +20,7 @@ public class CollectivityRepository {
         this.dataSource = dataSource;
     }
 
+    
     public Collectivity save(Collectivity c) throws SQLException {
         Connection conn = null;
         try {
