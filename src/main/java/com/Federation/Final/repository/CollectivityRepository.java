@@ -5,10 +5,7 @@ import com.Federation.Final.entity.Collectivity;
 import com.Federation.Final.entity.Member;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.UUID;
 
 @Component
@@ -80,6 +77,43 @@ public class CollectivityRepository {
                 conn.setAutoCommit(true);
                 conn.close();
             }
+        }
+    }
+    public boolean existsById(String id) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM collectivity WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+            return false;
+        }
+    }
+    public Collectivity findById(String id) throws SQLException {
+        String sql = "SELECT id, location, creation_date, federation_approval FROM collectivity WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Collectivity collectivity = new Collectivity();
+                collectivity.setId(rs.getString("id"));
+                collectivity.setLocation(rs.getString("location"));
+                collectivity.setCreationDate(rs.getDate("creation_date").toLocalDate());
+                collectivity.setFederationApproval(rs.getBoolean("federation_approval"));
+                return collectivity;
+            }
+
+            return null;
         }
     }
 
