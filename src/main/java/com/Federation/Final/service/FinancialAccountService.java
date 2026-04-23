@@ -22,7 +22,7 @@ public class FinancialAccountService {
     }
 
     public List<FinancialAccount> getAccountsByCollectivity(String collectivityId, LocalDate date) throws SQLException {
-        // Vérifier que la collectivité existe
+
         if (!collectivityRepository.existsById(collectivityId)) {
             throw new IllegalArgumentException("Collectivity not found with id: " + collectivityId);
         }
