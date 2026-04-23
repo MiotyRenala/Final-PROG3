@@ -28,12 +28,12 @@ public class CollectivityTransactionService {
             LocalDate from,
             LocalDate to) throws SQLException {
 
-        // Vérifier que la collectivité existe
+
         if (!collectivityRepository.existsById(collectivityId)) {
             throw new IllegalArgumentException("Collectivity not found with id: " + collectivityId);
         }
 
-        // Vérifier les dates
+
         if (from == null || to == null) {
             throw new IllegalArgumentException("'from' and 'to' dates are required");
         }

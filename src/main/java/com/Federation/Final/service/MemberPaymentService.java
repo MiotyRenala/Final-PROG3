@@ -41,7 +41,7 @@ public class MemberPaymentService {
 
     public List<MemberPaymentResponse> createPayments(String memberId, List<CreateMemberPayment> dtos) throws SQLException, SQLException {
 
-        // Vérifier que le membre existe
+
         var memberOpt = memberRepository.findById(memberId);
         if (memberOpt.isEmpty()) {
             throw new IllegalArgumentException("Member not found with id: " + memberId);
@@ -81,7 +81,7 @@ public class MemberPaymentService {
 
             payment = memberPaymentRepository.save(payment);
 
-            // Créer la transaction associée pour la collectivité
+
             CollectivityTransaction transaction = new CollectivityTransaction();
             transaction.setCollectivityId(collectivityId);
             transaction.setCreationDate(LocalDate.now());
@@ -91,7 +91,7 @@ public class MemberPaymentService {
 
             transactionRepository.save(transaction);
 
-            // Construire la réponse
+
             MemberPaymentResponse response = new MemberPaymentResponse();
             response.setId(payment.getId());
             response.setAmount(payment.getAmount());
