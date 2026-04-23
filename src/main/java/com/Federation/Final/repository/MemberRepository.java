@@ -149,5 +149,23 @@ public class MemberRepository {
             }
             return null;
         }
+
+    }
+
+    public List<Member> findByCollectivityId(String collectivityId) throws SQLException {
+        String sql = "SELECT * FROM member WHERE collectivity_id = ?";
+        List<Member> members = new ArrayList<>();
+
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, collectivityId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                members.add(map(rs));
+            }
+        }
+        return members;
     }
 }

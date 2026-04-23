@@ -11,6 +11,7 @@ import com.Federation.Final.repository.CollectivityRepository;
 import com.Federation.Final.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -65,6 +66,19 @@ public class CollectivityService {
             responses.add(resp);
         }
         return responses;
+    }
+    public Collectivity findById(String id) throws SQLException {
+        Collectivity collectivity = collectivityRepository.findById(id);
+        if (collectivity == null) {
+            throw new IllegalArgumentException("Collectivity not found with id: " + id);
+        }
+
+        List<Member> members = memberRepository.findByCollectivityId(id);
+        collectivity.setMembers(members);
+
+
+
+        return collectivity;
     }
 
 }
