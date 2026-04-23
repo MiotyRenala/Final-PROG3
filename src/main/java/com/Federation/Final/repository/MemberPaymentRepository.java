@@ -22,7 +22,7 @@ public class MemberPaymentRepository {
         String sql = """
             INSERT INTO member_payment 
             (id, member_id, membership_fee_id, amount, payment_mode, account_credited_id, creation_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?::payment_mode_enum, ?, ?)
         """;
 
         try (Connection conn = dataSource.getConnection();

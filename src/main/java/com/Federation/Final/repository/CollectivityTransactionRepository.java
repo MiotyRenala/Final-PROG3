@@ -207,7 +207,7 @@ public class CollectivityTransactionRepository {
         String sql = """
             INSERT INTO collectivity_transaction 
             (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?::payment_mode_enum, ?, ?)
         """;
 
         try (Connection conn = dataSource.getConnection();

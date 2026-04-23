@@ -38,7 +38,7 @@ public class MembershipFeeService {
 
         for (MembershipFee fee : fees) {
             fee.setId(UUID.randomUUID().toString());
-            fee.setStatus(ActivityStatusEnum.ACTIVATE);
+            fee.setStatus(ActivityStatusEnum.ACTIVE);
         }
 
         membershipFeeRepository.saveAll(collectivityId, fees);
