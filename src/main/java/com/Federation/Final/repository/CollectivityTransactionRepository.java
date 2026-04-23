@@ -10,6 +10,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class CollectivityTransactionRepository {
@@ -185,6 +186,29 @@ public class CollectivityTransactionRepository {
         }
 
         return null;
+    }
+    public CollectivityTransaction save(CollectivityTransaction transaction) throws SQLException {
+        String sql = """
+            INSERT INTO collectivity_transaction 
+            (id, collectivity_id, creation_date, amount, payment_mode, member_debited_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String id = UUID.randomUUID().toString();
+            stmt.setString(1, id);
+            stmt.setString(2, transaction.getCollectivityId());
+            stmt.setDate(3, Date.valueOf(transaction.getCreationDate()));
+            stmt.setDouble(4, transaction.getAmount());
+            stmt.setString(5, transaction.getPaymentMode().name());
+            stmt.setString(6, transaction.getMemberDebitedId());
+
+            stmt.executeUpdate();
+            transaction.setId(id);
+            return transaction;
+        }
     }
 
 }

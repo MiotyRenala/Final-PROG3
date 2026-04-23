@@ -156,7 +156,7 @@ public class MembershipFeeRepository {
 
 
         return fee;
+    }
 }
-}
-}
+
 

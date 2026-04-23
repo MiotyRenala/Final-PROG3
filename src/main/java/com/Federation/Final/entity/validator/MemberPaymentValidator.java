@@ -1,7 +1,9 @@
 package com.Federation.Final.entity.validator;
 
 import com.Federation.Final.entity.dto.CreateMemberPayment;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MemberPaymentValidator {
     public void validate(CreateMemberPayment dto) {
         if (dto.getAmount() <= 0) {

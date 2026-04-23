@@ -15,5 +15,6 @@ public class CollectivityTransaction {
     private String collectivityId;
 
     private FinancialAccount accountCredited;
+    private String memberDebitedId;
     private Member memberDebited;
 }

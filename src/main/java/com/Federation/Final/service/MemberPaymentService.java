@@ -11,12 +11,14 @@ import com.Federation.Final.repository.CollectivityTransactionRepository;
 import com.Federation.Final.repository.MemberPaymentRepository;
 import com.Federation.Final.repository.MemberRepository;
 import com.Federation.Final.repository.MembershipFeeRepository;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class MemberPaymentService {
     private final MemberPaymentRepository memberPaymentRepository;
     private final MemberRepository memberRepository;
