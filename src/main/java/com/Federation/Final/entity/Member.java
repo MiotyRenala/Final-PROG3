@@ -5,10 +5,7 @@ import com.Federation.Final.entity.Enum.MemberOccupationEnum;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 @Data
 public class Member {

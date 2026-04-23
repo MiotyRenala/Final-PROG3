@@ -51,3 +51,4 @@ ALTER table Collectivity ADD COLUMN creation_date date;
 Drop table collectivity_structure;
 ALTER TABLE member ADD COLUMN membership_date DATE;
 ALTER TABLE member ADD COLUMN active boolean;
+

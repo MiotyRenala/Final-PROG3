@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/collectivities")
 public class CollectivityTransactionController {
 
     private final CollectivityTransactionService transactionService;

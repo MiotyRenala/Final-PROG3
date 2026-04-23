@@ -27,12 +27,14 @@ public class CollectivityRepository {
             String id = UUID.randomUUID().toString();
 
             // 1. Insert collectivity
-            String sqlColl = "INSERT INTO collectivity (id, location, creation_date, federation_approval) VALUES (?, ?, ?, ?)";
+            String sqlColl = "INSERT INTO collectivity (id, name, number, location, creation_date, federation_approval) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sqlColl)) {
                 stmt.setString(1, id);
-                stmt.setString(2, c.getLocation());
-                stmt.setDate(3, Date.valueOf(c.getCreationDate()));
-                stmt.setBoolean(4, c.isFederationApproval());
+                stmt.setString(2, c.getName());
+                stmt.setInt(3, c.getUniqueNumber());
+                stmt.setString(4, c.getLocation());
+                stmt.setDate(5, Date.valueOf(c.getCreationDate()));
+                stmt.setBoolean(6, c.isFederationApproval());
                 stmt.executeUpdate();
             }
             c.setId(id);
@@ -96,7 +98,7 @@ public class CollectivityRepository {
         }
     }
     public Collectivity findById(String id) throws SQLException {
-        String sql = "SELECT id, location, creation_date, federation_approval FROM collectivity WHERE id = ?";
+        String sql = "SELECT id, name, number, location, creation_date, federation_approval FROM collectivity WHERE id = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -107,6 +109,8 @@ public class CollectivityRepository {
             if (rs.next()) {
                 Collectivity collectivity = new Collectivity();
                 collectivity.setId(rs.getString("id"));
+                collectivity.setName(rs.getString("name"));
+                collectivity.setUniqueNumber(rs.getInt("number"));
                 collectivity.setLocation(rs.getString("location"));
                 collectivity.setCreationDate(rs.getDate("creation_date").toLocalDate());
                 collectivity.setFederationApproval(rs.getBoolean("federation_approval"));
