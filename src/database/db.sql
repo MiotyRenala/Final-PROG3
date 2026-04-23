@@ -80,7 +80,7 @@ create table bank_account(
 
 );
 
-create type mobile_banking_service_enum as enum ('AIRTEL_MONEY', 'MVOLA','ORANGE_MONEY')
+create type mobile_banking_service_enum as enum ('AIRTEL_MONEY', 'MVOLA','ORANGE_MONEY');
 create table mobile_banking_account(
     id varchar(50) primary key references financial_account(account_id) ,
     holder_name varchar(50) not null,
