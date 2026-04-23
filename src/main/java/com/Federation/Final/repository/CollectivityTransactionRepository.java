@@ -18,8 +18,8 @@ public class CollectivityTransactionRepository {
     private final DataSource dataSource;
 
     public CollectivityTransactionRepository(DataSource dataSource) {
-            this.dataSource = dataSource;
-        }
+        this.dataSource = dataSource;
+    }
 
     private FinancialAccount buildFinancialAccount(
             Connection connection,
@@ -29,9 +29,9 @@ public class CollectivityTransactionRepository {
     ) throws SQLException {
 
         if (accountId == null) return null;
+        if (type == null) return null;
 
         switch (type) {
-
             case "CASH" -> {
                 CashAccount cash = new CashAccount();
                 cash.setId(accountId);
@@ -94,83 +94,13 @@ public class CollectivityTransactionRepository {
             }
         }
 
-        throw new RuntimeException("Unknown account type: " + type);
+        return null;
     }
 
-        public List<CollectivityTransaction> findByCollectivityAndPeriod(
-                String collectivityId,
-                LocalDate from,
-                LocalDate to
-        ) {
-
-            List<CollectivityTransaction> transactions = new ArrayList<>();
-
-            String sql = """
-            SELECT 
-                ct.id,
-                ct.creation_date,
-                ct.amount,
-                ct.payment_mode,
-                ct.account_credited_id,
-                ct.member_debited_id,
-                fa.type AS account_type,
-                fa.amount AS account_amount
-            FROM collectivity_transaction ct
-            LEFT JOIN financial_account fa 
-                ON ct.account_credited_id = fa.id
-            WHERE ct.collectivity_id = ?
-              AND ct.creation_date BETWEEN ? AND ?
-            ORDER BY ct.creation_date DESC
-        """;
-
-            try (Connection connection = dataSource.getConnection();
-                 PreparedStatement ps = connection.prepareStatement(sql)) {
-
-                ps.setString(1, collectivityId);
-                ps.setDate(2, Date.valueOf(from));
-                ps.setDate(3, Date.valueOf(to));
-
-                ResultSet rs = ps.executeQuery();
-
-                while (rs.next()) {
-
-                    CollectivityTransaction transaction = new CollectivityTransaction();
-
-                    transaction.setId(rs.getString("id"));
-                    transaction.setCreationDate(rs.getDate("creation_date").toLocalDate());
-                    transaction.setAmount(rs.getDouble("amount"));
-                    transaction.setPaymentMode(
-                            PaymentModeEnum.valueOf(rs.getString("payment_mode"))
-                    );
-
-                    String accountId = rs.getString("account_credited_id");
-                    String accountType = rs.getString("account_type");
-
-                    FinancialAccount account = buildFinancialAccount(
-                            connection,
-                            accountId,
-                            accountType,
-                            rs.getDouble("account_amount")
-                    );
-
-                    transaction.setAccountCredited(account);
-
-                    // --- Member ---
-                    String memberId = rs.getString("member_debited_id");
-                    transaction.setMemberDebited(findMemberById(connection, memberId));
-
-                    transactions.add(transaction);
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException("Error fetching transactions", e);
-            }
-
-            return transactions;
-        }
     private Member findMemberById(Connection connection, String memberId) throws SQLException {
+        if (memberId == null) return null;
 
-        String sql = "SELECT id, first_name, last_name FROM member WHERE id = ?";
+        String sql = "SELECT id, first_name, last_name, email, phone_number FROM member WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, memberId);
@@ -181,17 +111,103 @@ public class CollectivityTransactionRepository {
                 member.setId(rs.getString("id"));
                 member.setFirstName(rs.getString("first_name"));
                 member.setLastName(rs.getString("last_name"));
+                member.setEmail(rs.getString("email"));
+                member.setPhoneNumber(rs.getString("phone_number"));
                 return member;
             }
         }
-
         return null;
     }
+
+    public List<CollectivityTransaction> findByCollectivityAndPeriod(
+            String collectivityId,
+            LocalDate from,
+            LocalDate to
+    ) {
+
+        List<CollectivityTransaction> transactions = new ArrayList<>();
+
+        String sql = """
+            SELECT 
+                ct.id,
+                ct.creation_date,
+                ct.amount,
+                ct.payment_mode,
+                ct.account_credited_id,
+                ct.member_debited_id,
+                fa.type AS type,
+                fa.amount AS account_amount
+            FROM collectivity_transaction ct
+            LEFT JOIN financial_account fa 
+                ON ct.account_credited_id = fa.id
+            WHERE ct.collectivity_id = ?
+              AND ct.creation_date BETWEEN ? AND ?
+            ORDER BY ct.creation_date DESC
+        """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, collectivityId);
+            ps.setDate(2, Date.valueOf(from));
+            ps.setDate(3, Date.valueOf(to));
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                CollectivityTransaction transaction = new CollectivityTransaction();
+
+                transaction.setId(rs.getString("id"));
+
+                Date creationDate = rs.getDate("creation_date");
+                if (creationDate != null) {
+                    transaction.setCreationDate(creationDate.toLocalDate());
+                }
+
+                transaction.setAmount(rs.getDouble("amount"));
+
+                // Gestion du cas où payment_mode est NULL
+                String paymentModeStr = rs.getString("payment_mode");
+                if (paymentModeStr != null && !paymentModeStr.isEmpty()) {
+                    transaction.setPaymentMode(PaymentModeEnum.valueOf(paymentModeStr));
+                } else {
+                    // Valeur par défaut si NULL
+                    transaction.setPaymentMode(PaymentModeEnum.CASH);
+                }
+
+                transaction.setCollectivityId(collectivityId);
+
+                String accountId = rs.getString("account_credited_id");
+                String accountType = rs.getString("type");
+                double accountAmount = rs.getDouble("account_amount");
+
+                if (accountId != null && accountType != null) {
+                    FinancialAccount account = buildFinancialAccount(connection, accountId, accountType, accountAmount);
+                    transaction.setAccountCredited(account);
+                }
+
+                String memberId = rs.getString("member_debited_id");
+                if (memberId != null) {
+                    Member member = findMemberById(connection, memberId);
+                    transaction.setMemberDebited(member);
+                }
+
+                transactions.add(transaction);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching transactions: " + e.getMessage(), e);
+        }
+
+        return transactions;
+    }
+
     public CollectivityTransaction save(CollectivityTransaction transaction) throws SQLException {
         String sql = """
             INSERT INTO collectivity_transaction 
-            (id, collectivity_id, creation_date, amount, payment_mode, member_debited_id) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = dataSource.getConnection();
@@ -202,13 +218,25 @@ public class CollectivityTransactionRepository {
             stmt.setString(2, transaction.getCollectivityId());
             stmt.setDate(3, Date.valueOf(transaction.getCreationDate()));
             stmt.setDouble(4, transaction.getAmount());
-            stmt.setString(5, transaction.getPaymentMode().name());
-            stmt.setString(6, transaction.getMemberDebitedId());
+
+            String paymentMode = transaction.getPaymentMode() != null ? transaction.getPaymentMode().name() : "CASH";
+            stmt.setString(5, paymentMode);
+
+            String accountCreditedId = null;
+            if (transaction.getAccountCredited() != null) {
+                accountCreditedId = transaction.getAccountCredited().getId();
+            }
+            stmt.setString(6, accountCreditedId);
+
+            String memberDebitedId = null;
+            if (transaction.getMemberDebited() != null) {
+                memberDebitedId = transaction.getMemberDebited().getId();
+            }
+            stmt.setString(7, memberDebitedId);
 
             stmt.executeUpdate();
             transaction.setId(id);
             return transaction;
         }
     }
-
 }

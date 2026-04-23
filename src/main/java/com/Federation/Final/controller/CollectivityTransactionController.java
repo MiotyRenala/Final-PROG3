@@ -33,9 +33,8 @@ public class CollectivityTransactionController {
 
         if (paymentMode != null) {
             transactions = transactionService.getTransactionsByPeriodAndPaymentMode(id, from, to, paymentMode);
-        } else if (minAmount != null) {
-            transactions = transactionService.getTransactionsByPeriodAndMinAmount(id, from, to, minAmount);
-        } else {
+        }
+         else {
             transactions = transactionService.getTransactionsByPeriod(id, from, to);
         }
 
