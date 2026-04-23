@@ -134,4 +134,20 @@ public class MemberRepository {
         m.setMembershipDate(rs.getDate("membership_date").toLocalDate());
         return m;
     }
+
+    public String findCollectivityIdByMemberId(String memberId) throws SQLException {
+        String sql = "SELECT collectivity_id FROM member WHERE id = ?";
+
+        try (Connection conn = datasource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, memberId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("collectivity_id");
+            }
+            return null;
+        }
+    }
 }

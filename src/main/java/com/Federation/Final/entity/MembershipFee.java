@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Data
 public class MembershipFee {
     private String id;
+    private String collectivityId;
     private LocalDate eligibleFrom;
     private FrequencyEnum frequency;
     private Double amount;

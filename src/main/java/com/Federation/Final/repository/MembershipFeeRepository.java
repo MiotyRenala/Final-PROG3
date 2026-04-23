@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class MembershipFeeRepository {
@@ -121,5 +122,41 @@ public class MembershipFeeRepository {
 
         return false;
     }
+
+    public Optional<MembershipFee> findById(String id) throws SQLException {
+        String sql = "SELECT id, eligible_from, frequency, amount, label, status FROM membership_fee WHERE id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(map(rs));
+            }
+            return Optional.empty();
+        }
+    }
+
+    private MembershipFee map(ResultSet rs) throws SQLException {
+        MembershipFee fee = new MembershipFee();
+        fee.setId(rs.getString("id"));
+
+    Date date = rs.getDate("eligible_from");
+        if (date != null) {
+        fee.setEligibleFrom(date.toLocalDate());
+    }
+
+        fee.setFrequency(FrequencyEnum.valueOf(rs.getString("frequency")));
+        fee.setAmount(rs.getDouble("amount"));
+        fee.setLabel(rs.getString("label"));
+        fee.setStatus(ActivityStatusEnum.valueOf(rs.getString("status")));
+
+
+
+        return fee;
+}
+}
 }
 
