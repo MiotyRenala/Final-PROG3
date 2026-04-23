@@ -21,8 +21,7 @@ public class CollectivityService {
     private final MemberRepository memberRepository;
     private final CollectivityValidator validator;
 
-    public CollectivityService(CollectivityRepository collectivityRepository,
-                               MemberRepository memberRepository,
+    public CollectivityService(CollectivityRepository collectivityRepository, MemberRepository memberRepository,
                                CollectivityValidator validator) {
         this.collectivityRepository = collectivityRepository;
         this.memberRepository = memberRepository;

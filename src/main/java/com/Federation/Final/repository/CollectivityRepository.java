@@ -2,17 +2,13 @@ package com.Federation.Final.repository;
 
 import com.Federation.Final.datasource.DataSource;
 import com.Federation.Final.entity.Collectivity;
-import com.Federation.Final.entity.CollectivityStructure;
 import com.Federation.Final.entity.Member;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Component

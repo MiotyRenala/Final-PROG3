@@ -23,34 +23,78 @@ public class MemberRepository {
 
     public Optional<Member> findById(String id) throws SQLException {
         String sql = "SELECT * FROM member WHERE id = ?";
-        try (Connection conn = datasource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = datasource.getConnection();
+            stmt = conn.prepareStatement(sql);
             stmt.setString(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return Optional.of(map(rs));
+
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(map(rs));
+            }
+
             return Optional.empty();
+
+        } finally {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
         }
     }
 
     public List<Member> findByIds(List<String> ids) throws SQLException {
+
         if (ids == null || ids.isEmpty()) return List.of();
+
         String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
         String sql = "SELECT * FROM member WHERE id IN (" + placeholders + ")";
-        try (Connection conn = datasource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            for (int i = 0; i < ids.size(); i++) stmt.setString(i+1, ids.get(i));
-            ResultSet rs = stmt.executeQuery();
-            List<Member> members = new ArrayList<>();
-            while (rs.next()) members.add(map(rs));
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        List<Member> members = new ArrayList<>();
+
+        try {
+            conn = datasource.getConnection();
+            stmt = conn.prepareStatement(sql);
+
+            for (int i = 0; i < ids.size(); i++) {
+                stmt.setString(i + 1, ids.get(i));
+            }
+
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                members.add(map(rs));
+            }
+
             return members;
+
+        } finally {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
         }
     }
 
     public Member save(Member m) throws SQLException {
-        String sql = "INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession, phone_number, email, occupation, collectivity_id, active, membership_date) VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?, ?, ?, ?::member_occupation_enum, ?, ?, ?)";
+        String id = UUID.randomUUID().toString();
+        if (id == null || id.isEmpty()) {
+            throw new SQLException("ID generation failed");
+
+        }
+
+        String sql = "INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession," +
+                " phone_number, email, occupation , collectivity_id, active, membership_date) VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?, ?, ?, ?::occupation_enum, ?, ?, ?)";
         try (Connection conn = datasource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            String id = UUID.randomUUID().toString();
             stmt.setString(1, id);
             stmt.setString(2, m.getFirstName());
             stmt.setString(3, m.getLastName());
@@ -64,10 +108,13 @@ public class MemberRepository {
             stmt.setString(11, m.getCollectivityId());
             stmt.setBoolean(12, m.isActive());
             stmt.setDate(13, Date.valueOf(m.getMembershipDate()));
+            System.out.println("Exécution de la requête SQL...");
             stmt.executeUpdate();
+            System.out.println("Résultat:  ligne(s) insérée(s)");
             m.setId(id);
             return m;
         }
+
     }
 
     private Member map(ResultSet rs) throws SQLException {
