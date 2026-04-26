@@ -6,6 +6,8 @@ import com.Federation.Final.entity.Member;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -22,26 +24,32 @@ public class CollectivityRepository {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
 
-            String id = UUID.randomUUID().toString();
-
             // 1. Insert collectivity
-            String sqlColl = "INSERT INTO collectivity (id, name, number, location, creation_date, federation_approval) VALUES (?, ?, ?, ?, ?, ?)";
+            String sqlColl = "INSERT INTO collectivity (id, name, number, location, creation_date, federation_approval) VALUES (?, ?, ?, ?, ?, ?) returning id";
             try (PreparedStatement stmt = conn.prepareStatement(sqlColl)) {
-                stmt.setString(1, id);
+                stmt.setString(1, c.getId());
                 stmt.setString(2, c.getName());
                 stmt.setInt(3, c.getUniqueNumber());
                 stmt.setString(4, c.getLocation());
-                stmt.setDate(5, Date.valueOf(c.getCreationDate()));
+                if (c.getCreationDate() != null) {
+                    stmt.setDate(5, Date.valueOf(c.getCreationDate()));
+                } else {
+                    stmt.setNull(5, java.sql.Types.DATE);
+                }
                 stmt.setBoolean(6, c.isFederationApproval());
-                stmt.executeUpdate();
+
+                ResultSet resultSet = stmt.executeQuery();
+
+                if(resultSet.next()){
+                    c.setId(resultSet.getString("id"));
+                }
             }
-            c.setId(id);
 
             // 2. Update members with collectivity_id
             String sqlUpd = "UPDATE member SET collectivity_id = ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sqlUpd)) {
                 for (Member m : c.getMembers()) {
-                    stmt.setString(1, id);
+                    stmt.setString(1, c.getId());
                     stmt.setString(2, m.getId());
                     stmt.addBatch();
                 }
@@ -49,9 +57,9 @@ public class CollectivityRepository {
             }
 
             // 3. Insert structure (roles)
-            String sqlStruct = "INSERT INTO collectivity_structure (collectivity_id, role, member_id) VALUES (?, ?, ?)";
+            String sqlStruct = "INSERT INTO collectivity_structure (collectivity_id, position, member_id) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sqlStruct)) {
-                stmt.setString(1, id);
+                stmt.setString(1, c.getId());
                 stmt.setString(2, "PRESIDENT");
                 stmt.setString(3, c.getPresident().getId());
                 stmt.addBatch();
@@ -104,16 +112,19 @@ public class CollectivityRepository {
 
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
                 Collectivity collectivity = new Collectivity();
                 collectivity.setId(rs.getString("id"));
                 collectivity.setName(rs.getString("name"));
                 collectivity.setUniqueNumber(rs.getInt("number"));
                 collectivity.setLocation(rs.getString("location"));
-                collectivity.setCreationDate(rs.getDate("creation_date").toLocalDate());
+                collectivity.setCreationDate(Optional.ofNullable(rs.getDate("creation_date"))
+                        .map(Date::toLocalDate)
+                        .orElse(null));
+
                 collectivity.setFederationApproval(rs.getBoolean("federation_approval"));
                 return collectivity;
+
             }
             return null;
         }
@@ -122,7 +133,7 @@ public class CollectivityRepository {
     // Nouvelle méthode pour charger la structure
     public void loadStructure(Collectivity collectivity) throws SQLException {
         String sql = """
-            SELECT cs.role, cs.member_id, m.first_name, m.last_name, m.occupation
+            SELECT cs.position, cs.member_id, m.first_name, m.last_name, m.occupation
             FROM collectivity_structure cs
             JOIN member m ON cs.member_id = m.id
             WHERE cs.collectivity_id = ?
@@ -135,14 +146,14 @@ public class CollectivityRepository {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                String role = rs.getString("role");
+                String position = rs.getString("position");
                 Member member = new Member();
                 member.setId(rs.getString("member_id"));
                 member.setFirstName(rs.getString("first_name"));
                 member.setLastName(rs.getString("last_name"));
                 member.setOccupation(com.Federation.Final.entity.Enum.MemberOccupationEnum.valueOf(rs.getString("occupation")));
 
-                switch (role) {
+                switch (position) {
                     case "PRESIDENT":
                         collectivity.setPresident(member);
                         break;
