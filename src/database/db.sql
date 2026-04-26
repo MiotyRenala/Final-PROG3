@@ -46,8 +46,8 @@ CREATE TABLE membership_fee (
 
 ALTER table Collectivity DROP column structure_id;
 ALTER table Collectivity DROP column member_id;
-ALTER table Collectivity ADD COLUMN federation_approval boolean;
-ALTER table Collectivity ADD COLUMN creation_date date;
+ALTER table Collectivity ADD COLUMN federation_approval boolean default true;
+ALTER table Collectivity ADD COLUMN creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 
 ALTER table member drop column referee_id;

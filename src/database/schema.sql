@@ -49,6 +49,22 @@ ALTER table Collectivity ADD COLUMN federation_approval boolean;
 ALTER table Collectivity ADD COLUMN creation_date date;
 
 Drop table collectivity_structure;
-ALTER TABLE member ADD COLUMN membership_date DATE;
+ALTER TABLE member ADD COLUMN membership_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ;
 ALTER TABLE member ADD COLUMN active boolean;
 
+CREATE TABLE collectivity_structure (
+                                        id varchar(50) PRIMARY KEY,
+                                        collectivity_id varchar(50) NOT NULL,
+                                        member_id varchar(50) NOT NULL,
+                                        position occupation_enum NOT NULL,
+
+                                        CONSTRAINT fk_collectivity
+                                            FOREIGN KEY (collectivity_id)
+                                                REFERENCES collectivity (id)
+                                                ON DELETE CASCADE,
+
+                                        CONSTRAINT fk_member
+                                            FOREIGN KEY (member_id)
+                                                REFERENCES member (id)
+                                                ON DELETE CASCADE
+);
