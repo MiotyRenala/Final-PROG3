@@ -2,10 +2,12 @@ package com.Federation.Final.controller;
 
 import com.Federation.Final.entity.Collectivity;
 import com.Federation.Final.entity.FinancialAccount;
+import com.Federation.Final.entity.dto.CollectivityLocalStatistics;
 import com.Federation.Final.entity.dto.CollectivityResponse;
 import com.Federation.Final.entity.dto.CreateCollectivity;
 import com.Federation.Final.service.CollectivityService;
 import com.Federation.Final.service.FinancialAccountService;
+import com.Federation.Final.service.LocalStatisticService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +23,33 @@ public class CollectivityController {
 
     private final CollectivityService collectivityService;
     private final FinancialAccountService financialAccountService;
+    private final LocalStatisticService localStatisticService;
 
     // Constructeur corrigé
     public CollectivityController(CollectivityService collectivityService,
-                                  FinancialAccountService financialAccountService) {
+                                  FinancialAccountService financialAccountService,
+                                  LocalStatisticService localStatisticService) {
         this.collectivityService = collectivityService;
         this.financialAccountService = financialAccountService;
+        this.localStatisticService = localStatisticService;
     }
+
+    @GetMapping("/{id}/statistics")
+    public ResponseEntity<List<CollectivityLocalStatistics>> getLocalStatistics(
+            @PathVariable("id") String collectivityId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+        List<CollectivityLocalStatistics> statistics =
+                localStatisticService.getLocalStatistics(collectivityId, from, to);
+
+        if (statistics == null || statistics.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(statistics);
+    }
+
 
     @PostMapping
     public ResponseEntity<?> createCollectivities(@RequestBody List<CreateCollectivity> dtos) {
@@ -58,4 +80,6 @@ public class CollectivityController {
         List<FinancialAccount> accounts = financialAccountService.getAccountsByCollectivity(id, date);
         return ResponseEntity.ok(accounts);
     }
+
+
 }
