@@ -19,3 +19,12 @@ CREATE TABLE IF NOT EXISTS collectivity_activity (
 
 
 CREATE TYPE activity_type_enum AS ENUM ('MEETING', 'TRAINING', 'OTHER');
+
+Create type attendance_status_enum as enum ('MISSING', 'ATTENDED', 'UNDEFINED' );
+
+create table activity_attendance(
+    id varchar(50) PRIMARY KEY ,
+    member_id varchar(50) references member (id) not null,
+    activity_id varchar(50) references collectivity_activity(id) not null,
+    attendance_status attendance_status_enum not null
+);
