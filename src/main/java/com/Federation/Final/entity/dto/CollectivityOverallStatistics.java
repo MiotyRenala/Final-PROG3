@@ -1,5 +1,6 @@
 package com.Federation.Final.entity.dto;
 
+import com.Federation.Final.entity.Collectivity;
 import lombok.Data;
 
 import java.math.BigDecimal;
