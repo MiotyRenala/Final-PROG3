@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class LocalStatisticRepository {
@@ -21,144 +23,167 @@ public class LocalStatisticRepository {
         this.dataSource = dataSource;
     }
 
-    public List<CollectivityLocalStatistics> getLocalStatistics(String collectivityId,
-                                                                LocalDate from,
-                                                                LocalDate to)
-            throws SQLException {
-
-        List<CollectivityLocalStatistics> statistics = new ArrayList<>();
-        Connection conn = null;
-
-        try {
-            conn = dataSource.getConnection();
-
-            List<MemberDescription> members = getMembersByCollectivityId(conn, collectivityId);
-
-            for (MemberDescription member : members) {
-                BigDecimal earnedAmount = getEarnedAmountByMember(conn, member.getId(), from, to);
-                BigDecimal unpaidAmount = getUnpaidAmountByMember(conn, member.getId());
-
-
-                CollectivityLocalStatistics stats = new CollectivityLocalStatistics();
-                stats.setMemberDescription(member);
-                stats.setEarnedAmount(earnedAmount);
-                stats.setUnpaidAmount(unpaidAmount);
-
-                statistics.add(stats);
-            }
-
-        } finally {
-            if (conn != null) conn.close();
-        }
-
-        return statistics;
+    public List<Map<String, Object>> getLocalStatistics(LocalDate from, LocalDate to) {
+        String sql = """
+           SELECT
+                          c.id,
+                          c.number,
+                          c.name,
+                          COUNT(DISTINCT m.id) AS total_members,
+                          COUNT(DISTINCT ca.id) AS total_activities
+                      FROM collectivity c
+                      LEFT JOIN member m ON m.collectivity_id = c.id
+                      LEFT JOIN collectivity_activity ca\s
+                          ON ca.collectivity_id = c.id
+                         AND (
+                              ca.executive_date BETWEEN ? AND ?
+                              OR ca.recurrence_day_of_week IS NOT NULL
+                         )
+                      GROUP BY c.id, c.number, c.name
+                      ORDER BY c.number
+        """;
+        return executeQuery(sql, from, to);
     }
 
-    private List<MemberDescription> getMembersByCollectivityId(Connection conn, String collectivityId)
-            throws SQLException {
+    public List<Map<String, Object>> fetchLocalActivityBreakdown(LocalDate from, LocalDate to) {
+        String sql = """
+            SELECT
+                c.id,
+                COUNT(DISTINCT CASE WHEN ca.executive_date IS NOT NULL THEN ca.id END)        AS total_one_time_activities,
+                COUNT(DISTINCT CASE WHEN ca.recurrence_day_of_week IS NOT NULL THEN ca.id END) AS total_recurring_activities
+            FROM collectivity c
+            LEFT JOIN collectivity_activity ca ON ca.collectivity_id = c.id
+            WHERE (ca.executive_date BETWEEN ? AND ?)
+               OR (ca.recurrence_day_of_week IS NOT NULL)
+            GROUP BY c.id
+        """;
+        return executeQuery(sql, from, to);
+    }
 
-        List<MemberDescription> members = new ArrayList<>();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public List<Map<String, Object>> fetchLocalAttendanceStatistics(LocalDate from, LocalDate to) {
+        String sql = """
+            SELECT
+                                         m.id AS member_id,
+                                         COUNT(DISTINCT aa.id) AS total_attendance_records,
+                                         COUNT(DISTINCT CASE WHEN aa.attendance_status = 'ATTENDED' THEN aa.id END) AS total_attended,
+                                         COUNT(DISTINCT CASE WHEN aa.attendance_status = 'MISSING' THEN aa.id END) AS total_missing,
+                                         COUNT(DISTINCT CASE WHEN aa.attendance_status = 'UNDEFINED' THEN aa.id END) AS total_undefined,
+                                         CASE
+                                             WHEN COUNT(CASE WHEN aa.attendance_status IN ('ATTENDED','MISSING') THEN 1 END) = 0 THEN NULL
+                                             ELSE ROUND(
+                                                 COUNT(CASE WHEN aa.attendance_status = 'ATTENDED' THEN 1 END) * 100.0
+                                                 / COUNT(CASE WHEN aa.attendance_status IN ('ATTENDED','MISSING') THEN 1 END), 2
+                                             )
+                                         END AS attendance_rate_percent
+                                     FROM member m
+                                     LEFT JOIN collectivity_activity ca\s
+                                         ON ca.collectivity_id = m.collectivity_id
+                                        AND (
+                                             ca.executive_date BETWEEN ? AND ?
+                                             OR ca.recurrence_day_of_week IS NOT NULL
+                                        )
+                                     LEFT JOIN activity_attendance aa\s
+                                         ON aa.activity_id = ca.id AND aa.member_id = m.id
+                                     WHERE m.collectivity_id = ?
+                                     GROUP BY m.id
+        """;
+        return executeQuery(sql, from, to);
+    }
 
-        try {
-            String sql = """
-                SELECT 
-                    m.id,
-                    m.first_name,
-                    m.last_name,
-                    m.email,
-                    m.occupation
-                FROM member m
-                WHERE m.collectivity_id = ?
-                ORDER BY m.last_name, m.first_name
-            """;
 
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, collectivityId);
-            rs = ps.executeQuery();
+    public List<Map<String, Object>> fetchMemberList(String collectivityId) {
+        String sql = """
+             SELECT
+                          m.id AS member_id,
+                          m.first_name,
+                          m.last_name
+                      FROM member m
+                      WHERE m.collectivity_id = ?
+        """;
+        return executeQuery(sql, collectivityId);
+    }
+
+    public List<Map<String, Object>> fetchMemberAttendanceStatistics(String collectivityId, LocalDate from, LocalDate to) {
+        String sql = """
+            SELECT
+                m.id AS member_id,
+                COUNT(DISTINCT aa.id) AS total_attendance_records,
+                COUNT(DISTINCT CASE WHEN aa.attendance_status = 'ATTENDED'  THEN aa.id END) AS total_attended,
+                COUNT(DISTINCT CASE WHEN aa.attendance_status = 'MISSING'   THEN aa.id END) AS total_missing,
+                COUNT(DISTINCT CASE WHEN aa.attendance_status = 'UNDEFINED' THEN aa.id END) AS total_undefined,
+                CASE
+                    WHEN COUNT(CASE WHEN aa.attendance_status IN ('ATTENDED', 'MISSING') THEN 1 END) = 0 THEN NULL
+                    ELSE ROUND(
+                        COUNT(CASE WHEN aa.attendance_status = 'ATTENDED' THEN 1 END) * 100.0
+                        / COUNT(CASE WHEN aa.attendance_status IN ('ATTENDED', 'MISSING') THEN 1 END), 2
+                    )
+                END AS attendance_rate_percent
+            FROM collectivity c
+            
+            JOIN member m              ON m.id = c
+            .member_id
+            LEFT JOIN collectivity_activity ca ON ca.collectivity_id = c
+            .id
+            LEFT JOIN activity_attendance aa   ON aa.activity_id = ca.id AND aa.member_id = m.id
+            WHERE m
+            .id = ?
+              AND (
+                  (ca.executive_date BETWEEN ? AND ?)
+                  OR (ca.recurrence_day_of_week IS NOT NULL)
+              )
+            GROUP BY m.id
+        """;
+        return executeQuery(sql, from, to, collectivityId);
+    }
+
+    public List<Map<String, Object>> fetchMemberActivityBreakdown(String collectivityId, LocalDate from, LocalDate to) {
+        String sql = """
+            SELECT
+                                         m.id AS member_id,
+                                         COUNT(DISTINCT CASE WHEN ca.executive_date IS NOT NULL THEN aa.id END) AS total_one_time_attended,
+                                         COUNT(DISTINCT CASE WHEN ca.recurrence_day_of_week IS NOT NULL THEN aa.id END) AS total_recurring_attended
+                                     FROM member m
+                                     LEFT JOIN collectivity_activity ca
+                                         ON ca.collectivity_id = m.collectivity_id
+                                        AND (
+                                             ca.executive_date BETWEEN ? AND ?
+                                             OR ca.recurrence_day_of_week IS NOT NULL
+                                        )
+                                     LEFT JOIN activity_attendance aa
+                                         ON aa.activity_id = ca.id AND aa.member_id = m.id
+                                     WHERE m.collectivity_id = ?
+                                     GROUP BY m.id
+        """;
+        return executeQuery(sql, from, to, collectivityId);
+    }
+
+
+    private List<Map<String, Object>> executeQuery(String sql, Object... params) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
 
             while (rs.next()) {
-                MemberDescription member = new MemberDescription();
-                member.setId(rs.getString("id"));
-                member.setFirstName(rs.getString("first_name"));
-                member.setLastName(rs.getString("last_name"));
-                member.setEmail(rs.getString("email"));
-                member.setOccupation(rs.getString("occupation"));
-                members.add(member);
+                Map<String, Object> row = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.put(meta.getColumnLabel(i), rs.getObject(i));
+                }
+                results.add(row);
             }
 
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
-        return members;
-    }
-
-
-    private BigDecimal getEarnedAmountByMember(Connection conn, String memberId, LocalDate from, LocalDate to)
-            throws SQLException {
-
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            String sql = """
-                SELECT 
-                    COALESCE(SUM(mp.amount), 0) as earned_amount
-                FROM member_payment mp
-                WHERE mp.member_id = ?
-                AND mp.creation_date BETWEEN ? AND ?
-            """;
-
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, memberId);
-            ps.setDate(2, Date.valueOf(from));
-            ps.setDate(3, Date.valueOf(to));
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getBigDecimal("earned_amount");
-            }
-            return BigDecimal.ZERO;
-
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-        }
-    }
-
-
-    private BigDecimal getUnpaidAmountByMember(Connection conn, String memberId)
-            throws SQLException {
-
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            String sql = """
-                SELECT 
-                    COALESCE(SUM(mf.amount), 0) as unpaid_amount
-                FROM membership_fee mf
-                LEFT JOIN member_payment mp ON mp.membership_fee_id = mf.id
-                WHERE mp.member_id = ?
-                AND mf.status = 'ACTIVE'
-                AND mp.id IS NULL
-            """;
-
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, memberId);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getBigDecimal("unpaid_amount");
-            }
-            return BigDecimal.ZERO;
-
-        } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-        }
+        return results;
     }
 }

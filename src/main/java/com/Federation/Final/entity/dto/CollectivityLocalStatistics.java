@@ -6,7 +6,14 @@ import java.math.BigDecimal;
 
 @Data
 public class CollectivityLocalStatistics {
-    private MemberDescription memberDescription;
-    private BigDecimal earnedAmount;
-    private BigDecimal unpaidAmount;
+    private CollectivityInformation collectivityInformation;
+    private Integer totalMembers;
+    private Integer totalActivities;
+    private Integer totalOneTimeActivities;
+    private Integer totalRecurringActivities;
+    private Integer totalAttendanceRecords;
+    private Integer totalAttended;
+    private Integer totalMissing;
+    private Integer totalUndefined;
+    private BigDecimal attendanceRatePercent;
 }
