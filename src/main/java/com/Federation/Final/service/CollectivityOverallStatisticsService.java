@@ -37,8 +37,8 @@ public class CollectivityOverallStatisticsService {
 
 
             CollectivityInformation info = new CollectivityInformation();
-            info.setName((String) row.get("collectivityId"));
-            info.setNumber(0);
+            info.setName((String) row.get("name"));
+            info.setNumber((Integer) row.get("number"));
 
             CollectivityOverallStatistics stats = new CollectivityOverallStatistics();
             stats.setCollectivityInformation(info);

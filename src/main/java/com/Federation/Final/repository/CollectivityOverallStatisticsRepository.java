@@ -26,8 +26,8 @@ public class CollectivityOverallStatisticsRepository {
 
         String sql = """
        SELECT
-           c.id AS collectivity_id,
-           c.location,
+           c.name ,
+           c.number ,
        
            COUNT(DISTINCT CASE
                WHEN m.active = true THEN m.id
@@ -70,7 +70,7 @@ public class CollectivityOverallStatisticsRepository {
            ON mp.member_id = m.id
            AND mp.membership_fee_id = mf.id
        
-       GROUP BY c.id, c.location;
+       GROUP BY c.name, c.number;
     """;
 
         try (Connection conn = dataSource.getConnection();
@@ -84,8 +84,8 @@ public class CollectivityOverallStatisticsRepository {
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
 
-                row.put("collectivityId", rs.getString("collectivity_id"));
-                row.put("location", rs.getString("location"));
+                row.put("name", rs.getString("name"));
+                row.put("number", rs.getInt("number"));
                 row.put("totalMembers", rs.getInt("total_members"));
                 row.put("upToDateMembers", rs.getInt("up_to_date_members"));
                 row.put("newMembers", rs.getInt("new_members"));
