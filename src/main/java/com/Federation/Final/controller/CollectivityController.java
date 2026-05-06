@@ -1,15 +1,10 @@
 package com.Federation.Final.controller;
 
 import com.Federation.Final.entity.Collectivity;
+import com.Federation.Final.entity.CollectivityActivity;
 import com.Federation.Final.entity.FinancialAccount;
-import com.Federation.Final.entity.dto.CollectivityLocalStatistics;
-import com.Federation.Final.entity.dto.CollectivityOverallStatistics;
-import com.Federation.Final.entity.dto.CollectivityResponse;
-import com.Federation.Final.entity.dto.CreateCollectivity;
-import com.Federation.Final.service.CollectivityOverallStatisticsService;
-import com.Federation.Final.service.CollectivityService;
-import com.Federation.Final.service.FinancialAccountService;
-import com.Federation.Final.service.LocalStatisticService;
+import com.Federation.Final.entity.dto.*;
+import com.Federation.Final.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +22,16 @@ public class CollectivityController {
     private final FinancialAccountService financialAccountService;
     private final LocalStatisticService localStatisticService;
     private final CollectivityOverallStatisticsService collectivityOverallStatisticsService;
+    private final CollectivityActivityService collectivityActivityService;
 
 
     public CollectivityController(CollectivityService collectivityService,
                                   FinancialAccountService financialAccountService,
-                                  LocalStatisticService localStatisticService, CollectivityOverallStatisticsService collectivityOverallStatisticsService) {
+                                  LocalStatisticService localStatisticService,
+                                  CollectivityOverallStatisticsService collectivityOverallStatisticsService,
+                                  CollectivityActivityService collectivityActivityService
+    ) {
+        this.collectivityActivityService = collectivityActivityService;
         this.collectivityService = collectivityService;
         this.financialAccountService = financialAccountService;
         this.localStatisticService = localStatisticService;
@@ -52,6 +52,39 @@ public class CollectivityController {
         }
 
         return ResponseEntity.ok(statistics);
+    }
+
+    @PostMapping("/{id}/activities")
+    public ResponseEntity<?> createActivities(
+            @PathVariable("id") String collectivityId,
+            @RequestBody List<CreateCollectivityActivity> dtos) {
+
+        try {
+            List<CollectivityActivity> created =
+                    collectivityActivityService.createActivities(collectivityId, dtos);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating activities: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/activities")
+    public ResponseEntity<List<CollectivityActivity>> getActivities(
+            @PathVariable("id") String collectivityId) {
+
+        List<CollectivityActivity> activities =
+                collectivityActivityService.getActivitiesByCollectivityId(collectivityId);
+
+        if (activities == null || activities.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(activities);
     }
 
     @GetMapping("/statistics")
