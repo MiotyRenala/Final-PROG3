@@ -142,7 +142,7 @@ public class LocalStatisticRepository {
                     COALESCE(SUM(mf.amount), 0) as unpaid_amount
                 FROM membership_fee mf
                 LEFT JOIN member_payment mp ON mp.membership_fee_id = mf.id
-                WHERE mf.member_id = ?
+                WHERE mp.member_id = ?
                 AND mf.status = 'ACTIVE'
                 AND mp.id IS NULL
             """;
