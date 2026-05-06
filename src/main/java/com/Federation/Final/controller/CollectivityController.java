@@ -2,13 +2,10 @@ package com.Federation.Final.controller;
 
 import com.Federation.Final.entity.Collectivity;
 import com.Federation.Final.entity.FinancialAccount;
-import com.Federation.Final.entity.dto.CollectivityOverallStatistics;
 import com.Federation.Final.entity.dto.CollectivityResponse;
 import com.Federation.Final.entity.dto.CreateCollectivity;
-import com.Federation.Final.service.CollectivityOverallStatisticsService;
 import com.Federation.Final.service.CollectivityService;
 import com.Federation.Final.service.FinancialAccountService;
-import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +15,18 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/collectivities")
 public class CollectivityController {
 
     private final CollectivityService collectivityService;
     private final FinancialAccountService financialAccountService;
-    private final CollectivityOverallStatisticsService collectivityOverallStatisticsService;
 
-
+    // Constructeur corrigé
     public CollectivityController(CollectivityService collectivityService,
-                                  FinancialAccountService financialAccountService,CollectivityOverallStatisticsService collectivityOverallStatisticsService) {
+                                  FinancialAccountService financialAccountService) {
         this.collectivityService = collectivityService;
         this.financialAccountService = financialAccountService;
-        this.collectivityOverallStatisticsService = collectivityOverallStatisticsService;
     }
 
     @PostMapping
@@ -64,19 +58,4 @@ public class CollectivityController {
         List<FinancialAccount> accounts = financialAccountService.getAccountsByCollectivity(id, date);
         return ResponseEntity.ok(accounts);
     }
-
-    @GetMapping("/statistics")
-    public ResponseEntity<List<CollectivityOverallStatistics>> getOverallStatistics(
-            @RequestParam("from")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate from,
-
-            @RequestParam("to")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate to
-    ){
-        return ResponseEntity.ok(collectivityOverallStatisticsService.getOverallStatistics(from, to));
-    }
-
-
 }

@@ -10,4 +10,3 @@ public class CollectivityLocalStatistics {
     private BigDecimal earnedAmount;
     private BigDecimal unpaidAmount;
 }
-
