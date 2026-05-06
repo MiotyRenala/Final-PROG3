@@ -130,7 +130,6 @@ public class CollectivityRepository {
         }
     }
 
-    // Nouvelle méthode pour charger la structure
     public void loadStructure(Collectivity collectivity) throws SQLException {
         String sql = """
             SELECT cs.position, cs.member_id, m.first_name, m.last_name, m.occupation

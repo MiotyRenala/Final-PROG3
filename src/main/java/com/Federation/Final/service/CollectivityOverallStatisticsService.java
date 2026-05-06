@@ -18,7 +18,7 @@ import static java.awt.SystemColor.info;
 @Service
 public class CollectivityOverallStatisticsService {
     private final CollectivityOverallStatisticsRepository repository;
-    
+
 
     public List<CollectivityOverallStatistics> getOverallStatistics(LocalDate from, LocalDate to) {
         if (from == null || to == null) {
@@ -35,21 +35,27 @@ public class CollectivityOverallStatisticsService {
 
         for (Map<String, Object> row : rows) {
 
-
             CollectivityInformation info = new CollectivityInformation();
             info.setName((String) row.get("name"));
             info.setNumber((Integer) row.get("number"));
 
             CollectivityOverallStatistics stats = new CollectivityOverallStatistics();
             stats.setCollectivityInformation(info);
-            stats.setNewMembersNumber((Integer) row.get("newMembers"));
+            stats.setTotalMembers((Integer) row.get("totalMembers"));
+            stats.setTotalActivities((Integer) row.get("totalActivities"));
+            stats.setTotalOneTimeActivities((Integer) row.get("totalOneTimeActivities"));
+            stats.setTotalRecurringActivities((Integer) row.get("totalRecurringActivities"));
+            stats.setTotalAttendanceRecords((Integer) row.get("totalAttendanceRecords"));
+            stats.setTotalAttended((Integer) row.get("totalAttended"));
+            stats.setTotalMissing((Integer) row.get("totalMissing"));
+            stats.setTotalUndefined((Integer) row.get("totalUndefined"));
 
-            Object percentageObj = row.get("duePercentage");
+            Object attendanceRate = row.get("attendanceRatePercent");
 
-            if (percentageObj != null) {
-                stats.setOverallMemberCurrentDuePercentage((BigDecimal) percentageObj);
+            if (attendanceRate != null) {
+                stats.setAttendanceRatePercent((BigDecimal) attendanceRate);
             } else {
-                stats.setOverallMemberCurrentDuePercentage(BigDecimal.ZERO);
+                stats.setAttendanceRatePercent(BigDecimal.ZERO);
             }
 
             result.add(stats);
@@ -57,4 +63,6 @@ public class CollectivityOverallStatisticsService {
 
         return result;
     }
+
+
 }
