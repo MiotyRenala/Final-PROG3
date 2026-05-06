@@ -56,14 +56,16 @@ ALTER table member add column membership_date date;
 ALTER table member add column active boolean default true;
 
 create type payment_mode_enum as enum ('CASH','MOBILE_BANKING','BANK_TRANSFER');
+drop table collectivity_transaction;
+
 Create table collectivity_transaction(
     id varchar(50) PRIMARY KEY ,
     collectivity_id varchar(50) references Collectivity (id) not null,
     creation_date date not null,
     amount numeric(12,2) not null,
     payment_mode payment_mode_enum not null,
-    account_credited_id varchar(50) not null,
-    member_debited_id varchar(50) references member(id)
+    account_credited_id varchar(50) references financial_account(id),
+    member_debited_id varchar(50) references member(id),
 
 );
 
@@ -99,9 +101,24 @@ create type account_type_enum as enum ('CASH','BANK','MOBILE_MONEY');
 create table financial_account(
     account_id varchar(50) primary key ,
     account_type account_type_enum
+
 );
 
-create table member_payment(
+alter table financial_account add column  collectivity_id varchar(50) references Collectivity(id);
 
-)
+alter table member_payment add column collectivity_id varchar(50) references Collectivity(id);
+
+
+drop table member_payment;
+CREATE TABLE member_payment (
+                         id varchar(50) PRIMARY KEY,
+    collectivity_id varchar(50) references Collectivity (id),
+                         member_id varchar(50) references member(id),
+                         membership_fee_id VARCHAR(50) references membership_fee(id),
+                         amount NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
+                         payment_mode payment_mode_enum,
+                         account_credited_id VARCHAR(50) references financial_account(id),
+                         creation_date TIMESTAMP default current_date
+
+);
 

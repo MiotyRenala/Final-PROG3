@@ -89,8 +89,8 @@ public class FinancialAccountRepository {
                         mobile.setMobileNumber(rs.getString("mobile_number"));
                         return mobile;
                     }
+                    break;
                 }
-                break;
 
             case "BANK":
                 sql = "SELECT holder_name, bank_name, bank_code, bank_branch_code, bank_account_number, bank_account_key FROM bank_account WHERE id = ?";
@@ -111,8 +111,9 @@ public class FinancialAccountRepository {
                         bank.setBankAccountKey(rs.getInt("bank_account_key"));
                         return bank;
                     }
+                    break;
                 }
-                break;
+
         }
         return null;
     }

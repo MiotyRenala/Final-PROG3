@@ -135,10 +135,9 @@ public class CollectivityTransactionRepository {
                 ct.payment_mode,
                 ct.account_credited_id,
                 ct.member_debited_id,
-                fa.type AS type,
-                fa.amount AS account_amount
+                fa.type AS type
             FROM collectivity_transaction ct
-            LEFT JOIN financial_account fa 
+            LEFT JOIN financial_account fa  
                 ON ct.account_credited_id = fa.id
             WHERE ct.collectivity_id = ?
               AND ct.creation_date BETWEEN ? AND ?
@@ -208,7 +207,7 @@ public class CollectivityTransactionRepository {
             INSERT INTO collectivity_transaction 
             (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id) 
             VALUES (?, ?, ?, ?, ?::payment_mode_enum, ?, ?)
-        """;
+        """;    
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

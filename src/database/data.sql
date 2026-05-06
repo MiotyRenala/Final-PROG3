@@ -56,12 +56,12 @@ INSERT INTO financial_account (id, type) VALUES
                                              ('C2-A-MOBILE-1', 'MOBILE_BANKING'),
                                              ('C3-A-CASH', 'CASH');
 
-INSERT INTO financial_account (id, type) VALUES
-                                             ('C1-A-CASH', 'CASH'),
-                                             ('C1-A-MOBILE-1', 'MOBILE_MONEY'),
-                                             ('C2-A-CASH', 'CASH'),
-                                             ('C2-A-MOBILE-1', 'MOBILE_MONEY'),
-                                             ('C3-A-CASH', 'CASH');
+INSERT INTO financial_account (id, type,collectivity_id) VALUES
+                                             ('C1-A-CASH', 'CASH','col-1'),
+                                             ('C1-A-MOBILE-1', 'MOBILE_MONEY','col-1'),
+                                             ('C2-A-CASH', 'CASH','col-2'),
+                                             ('C2-A-MOBILE-1', 'MOBILE_MONEY','col-2'),
+                                             ('C3-A-CASH', 'CASH','col-3');
 
 INSERT INTO cash_account (id, amount) VALUES
                                           ('C1-A-CASH', 0.00),
@@ -77,3 +77,78 @@ INSERT INTO mobile_banking_account (
 ) VALUES
       ('C1-A-MOBILE-1', 'Mpanorina', 'ORANGE_MONEY', 370489612, 0.00),
       ('C2-A-MOBILE-1', 'Dobo voalohany', 'ORANGE_MONEY', 320489612, 0.00);
+
+INSERT INTO membership_fee (id, eligible_from, frequency, amount, label, status, collectivity_id)
+VALUES ('cot-3', '2026-01-01', 'ANNUALLY', 50000.00, 'Cotisation annuelle', 'ACTIVE', 'col-3'),
+ ('cot-2', '2026-01-01', 'ANNUALLY', 100000.00, 'Cotisation annuelle', 'ACTIVE', 'col-2'),
+ ('cot-1', '2026-01-01', 'ANNUALLY', 100000.00, 'Cotisation annuelle', 'ACTIVE', 'col-1');
+
+INSERT INTO financial_account (collectivity_id, account_id, account_type, initial_amount, holder, phone_number)
+VALUES
+    ('col-1', 'C1-A-CASH', 'CASH', 0, NULL, NULL),
+    ('col-1', 'C1-A-MOBILE-1', 'ORANGE_MONEY', 0, 'Mpanorina', '0370489612');
+
+INSERT INTO member_payment (id,collectivity_id, member_id, amount, account_credited_id, payment_mode, creation_date)
+VALUES
+    ('MP-C1-001','col-1', 'C1-M1', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-002','col-1', 'C1-M2', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-003','col-1', 'C1-M3', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-004','col-1', 'C1-M4', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-005','col-1', 'C1-M5', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-006','col-1', 'C1-M6', 100000, 'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-007','col-1', 'C1-M7', 60000,  'C1-A-CASH', 'CASH', '2026-01-01'),
+    ('MP-C1-008','col-1', 'C1-M8', 90000,  'C1-A-CASH', 'CASH', '2026-01-01');
+
+INSERT INTO collectivity_transaction (
+    id,
+    collectivity_id,
+    creation_date,
+    amount,
+    payment_mode,
+    account_credited_id,
+    member_debited_id
+) VALUES
+      ('TRX-C1-001', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M1'),
+      ('TRX-C1-002', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M2'),
+      ('TRX-C1-003', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M3'),
+      ('TRX-C1-004', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M4'),
+      ('TRX-C1-005', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M5'),
+      ('TRX-C1-006', 'col-1', DATE '2026-01-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M6'),
+      ('TRX-C1-007', 'col-1', DATE '2026-01-01',  60000.00, 'CASH', 'C1-A-CASH', 'C1-M7'),
+      ('TRX-C1-008', 'col-1', DATE '2026-01-01',  90000.00, 'CASH', 'C1-A-CASH', 'C1-M8');
+
+INSERT INTO member_payment (
+    id,
+    collectivity_id,
+    member_id,
+    amount,
+    account_credited_id,
+    payment_mode,
+    creation_date
+) VALUES
+      ('MP-C2-001','col-2','C2-M1',  60000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-002','col-2','C2-M2',  90000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-003','col-2','C2-M3', 100000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-004','col-2','C2-M4', 100000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-005','col-2','C2-M5', 100000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-006','col-2','C2-M6', 100000.00, 'C2-A-CASH',     'CASH',   DATE '2026-01-01'),
+      ('MP-C2-007','col-2','C2-M7',  40000.00, 'C2-A-MOBILE-1', 'MOBILE_BANKING', DATE '2026-01-01'),
+      ('MP-C2-008','col-2','C2-M8',  60000.00, 'C2-A-MOBILE-1', 'MOBILE_BANKING', DATE '2026-01-01');
+
+INSERT INTO collectivity_transaction (
+    id,
+    collectivity_id,
+    creation_date,
+    amount,
+    payment_mode,
+    account_credited_id,
+    member_debited_id
+) VALUES
+      ('TRX-C2-001','col-2', DATE '2026-01-01',  60000.00, 'CASH',   'C2-A-CASH',     'C2-M1'),
+      ('TRX-C2-002','col-2', DATE '2026-01-01',  90000.00, 'CASH',   'C2-A-CASH',     'C2-M2'),
+      ('TRX-C2-003','col-2', DATE '2026-01-01', 100000.00, 'CASH',   'C2-A-CASH',     'C2-M3'),
+      ('TRX-C2-004','col-2', DATE '2026-01-01', 100000.00, 'CASH',   'C2-A-CASH',     'C2-M4'),
+      ('TRX-C2-005','col-2', DATE '2026-01-01', 100000.00, 'CASH',   'C2-A-CASH',     'C2-M5'),
+      ('TRX-C2-006','col-2', DATE '2026-01-01', 100000.00, 'CASH',   'C2-A-CASH',     'C2-M6'),
+      ('TRX-C2-007','col-2', DATE '2026-01-01',  40000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', 'C2-M7'),
+      ('TRX-C2-008','col-2', DATE '2026-01-01',  60000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', 'C2-M8');
