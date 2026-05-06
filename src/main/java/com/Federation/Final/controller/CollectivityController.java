@@ -22,7 +22,7 @@ public class CollectivityController {
     private final CollectivityService collectivityService;
     private final FinancialAccountService financialAccountService;
 
-    // Constructeur corrigé
+
     public CollectivityController(CollectivityService collectivityService,
                                   FinancialAccountService financialAccountService) {
         this.collectivityService = collectivityService;

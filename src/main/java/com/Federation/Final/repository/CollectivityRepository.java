@@ -81,7 +81,7 @@ public class CollectivityRepository {
     }
 
     public boolean existsById(String id) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM collectivity WHERE id = ?";
+        String sql = "SELECT COUNT(id) FROM collectivity WHERE id = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
