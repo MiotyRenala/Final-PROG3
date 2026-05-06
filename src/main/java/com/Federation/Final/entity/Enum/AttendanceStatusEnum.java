@@ -1,6 +1,6 @@
 package com.Federation.Final.entity.Enum;
 
-public enum AttendanceStatus {
+public enum AttendanceStatusEnum {
     MISSING,
     ATTENDED,
     UNDEFINED

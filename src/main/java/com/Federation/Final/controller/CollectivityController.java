@@ -23,19 +23,22 @@ public class CollectivityController {
     private final LocalStatisticService localStatisticService;
     private final CollectivityOverallStatisticsService collectivityOverallStatisticsService;
     private final CollectivityActivityService collectivityActivityService;
+    private final ActivityAttendanceService activityAttendanceService;
 
 
     public CollectivityController(CollectivityService collectivityService,
                                   FinancialAccountService financialAccountService,
                                   LocalStatisticService localStatisticService,
                                   CollectivityOverallStatisticsService collectivityOverallStatisticsService,
-                                  CollectivityActivityService collectivityActivityService
+                                  CollectivityActivityService collectivityActivityService,
+                                  ActivityAttendanceService activityAttendanceService
     ) {
         this.collectivityActivityService = collectivityActivityService;
         this.collectivityService = collectivityService;
         this.financialAccountService = financialAccountService;
         this.localStatisticService = localStatisticService;
         this.collectivityOverallStatisticsService = collectivityOverallStatisticsService;
+        this.activityAttendanceService = activityAttendanceService;
     }
 
     @GetMapping("/{id}/statistics")
@@ -130,5 +133,20 @@ public class CollectivityController {
         return ResponseEntity.ok(accounts);
     }
 
+    @PostMapping("/{id}/activities/{activityId}/attendances")
+    public ResponseEntity<List<ActivityMemberAttendance>> saveAttendance(
+            @PathVariable String activityId,
+            @RequestBody List<CreateActivityMemberAttendance> attendances
+    ) {
+        List<ActivityMemberAttendance> result = activityAttendanceService.saveAttendance(activityId, attendances);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+    @GetMapping("/{id}/activities/{activityId}/attendances")
+    public ResponseEntity<List<ActivityMemberAttendance>> getAttendanceByActivityId(
+            @PathVariable String activityId
+    ) {
+        List<ActivityMemberAttendance> result = activityAttendanceService.getAttendanceByActivityId(activityId);
+        return ResponseEntity.ok(result);
+    }
 
 }
