@@ -27,8 +27,8 @@ public class ActivityAttendanceRepository {
     ) {
 
         String sql = """
-            INSERT INTO activity_attendance (id, activity_id, member_id, status)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO activity_attendance (id, activity_id, member_id, attendance_status)
+            VALUES (?, ?, ?, ?::attendance_status_enum)
         """;
 
         List<ActivityMemberAttendance> result = new ArrayList<>();
@@ -38,15 +38,20 @@ public class ActivityAttendanceRepository {
 
             for (CreateActivityMemberAttendance attendance : attendances) {
 
-                preparedStatement.setString(2, attendance.getMemberIdentifier());
-                preparedStatement.setString(3, attendance.getAttendanceStatusEnum().name());
+                String id = UUID.randomUUID().toString();
+
+                preparedStatement.setString(1, id);
+                preparedStatement.setString(2, activityId);
+                preparedStatement.setString(3, attendance.getMemberIdentifier());
+                preparedStatement.setString(4, attendance.getAttendanceStatusEnum().name());
 
                 preparedStatement.addBatch();
 
-                ActivityMemberAttendance entity = new ActivityMemberAttendance();
-                entity.setAttendanceStatusEnum(attendance.getAttendanceStatusEnum());
+                ActivityMemberAttendance dto = new ActivityMemberAttendance();
+                dto.setId(id);
+                dto.setAttendanceStatusEnum(attendance.getAttendanceStatusEnum());
 
-                result.add(entity);
+                result.add(dto);
             }
 
             preparedStatement.executeBatch();
@@ -63,10 +68,12 @@ public class ActivityAttendanceRepository {
         String sql = """
         SELECT 
             aa.id,
-            aa.status,
+            aa.attendance_status,
             m.id as member_id,
             m.first_name,
-            m.last_name
+            m.last_name,
+            m.email,
+            m.occupation
         FROM activity_attendance aa
         JOIN member m ON aa.member_id = m.id
         WHERE aa.activity_id = ?
@@ -86,11 +93,13 @@ public class ActivityAttendanceRepository {
                 member.setId(rs.getString("member_id"));
                 member.setFirstName(rs.getString("first_name"));
                 member.setLastName(rs.getString("last_name"));
+                member.setEmail(rs.getString("email"));
+                member.setOccupation(rs.getString("occupation"));
 
                 ActivityMemberAttendance dto = new ActivityMemberAttendance();
                 dto.setId(rs.getString("id"));
                 dto.setAttendanceStatusEnum(
-                        AttendanceStatusEnum.valueOf(rs.getString("status"))
+                        AttendanceStatusEnum.valueOf(rs.getString("attendance_status"))
                 );
                 dto.setMemberDescription(member);
 
