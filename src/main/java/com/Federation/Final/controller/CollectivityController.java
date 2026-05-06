@@ -25,7 +25,7 @@ public class CollectivityController {
     private final FinancialAccountService financialAccountService;
     private final LocalStatisticService localStatisticService;
 
-    // Constructeur corrigé
+
     public CollectivityController(CollectivityService collectivityService,
                                   FinancialAccountService financialAccountService,
                                   LocalStatisticService localStatisticService) {
@@ -80,7 +80,6 @@ public class CollectivityController {
         List<FinancialAccount> accounts = financialAccountService.getAccountsByCollectivity(id, date);
         return ResponseEntity.ok(accounts);
     }
-
 
 
 }
