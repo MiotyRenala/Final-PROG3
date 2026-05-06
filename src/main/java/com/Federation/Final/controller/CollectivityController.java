@@ -3,8 +3,10 @@ package com.Federation.Final.controller;
 import com.Federation.Final.entity.Collectivity;
 import com.Federation.Final.entity.FinancialAccount;
 import com.Federation.Final.entity.dto.CollectivityLocalStatistics;
+import com.Federation.Final.entity.dto.CollectivityOverallStatistics;
 import com.Federation.Final.entity.dto.CollectivityResponse;
 import com.Federation.Final.entity.dto.CreateCollectivity;
+import com.Federation.Final.service.CollectivityOverallStatisticsService;
 import com.Federation.Final.service.CollectivityService;
 import com.Federation.Final.service.FinancialAccountService;
 import com.Federation.Final.service.LocalStatisticService;
@@ -24,14 +26,16 @@ public class CollectivityController {
     private final CollectivityService collectivityService;
     private final FinancialAccountService financialAccountService;
     private final LocalStatisticService localStatisticService;
+    private final CollectivityOverallStatisticsService collectivityOverallStatisticsService;
 
 
     public CollectivityController(CollectivityService collectivityService,
                                   FinancialAccountService financialAccountService,
-                                  LocalStatisticService localStatisticService) {
+                                  LocalStatisticService localStatisticService, CollectivityOverallStatisticsService collectivityOverallStatisticsService) {
         this.collectivityService = collectivityService;
         this.financialAccountService = financialAccountService;
         this.localStatisticService = localStatisticService;
+        this.collectivityOverallStatisticsService = collectivityOverallStatisticsService;
     }
 
     @GetMapping("/{id}/statistics")
@@ -50,6 +54,18 @@ public class CollectivityController {
         return ResponseEntity.ok(statistics);
     }
 
+    @GetMapping("/statistics")
+    public ResponseEntity<List<CollectivityOverallStatistics>> getOverallStatistics(
+            @RequestParam("from")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+
+            @RequestParam("to")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ){
+        return ResponseEntity.ok(collectivityOverallStatisticsService.getOverallStatistics(from, to));
+    }
 
     @PostMapping
     public ResponseEntity<?> createCollectivities(@RequestBody List<CreateCollectivity> dtos) {
