@@ -107,17 +107,24 @@ VALUES
     ('TXN-007', 'col-1', '2026-05-01', 60000.00, 'CASH', 'C1-A-CASH', 'C1-M7'),
     ('TXN-008', 'col-1', '2026-05-01', 90000.00, 'CASH', 'C1-A-CASH', 'C1-M8');
 
+UPDATE member_payment
+SET membership_fee_id = CASE
+                            WHEN creation_date = '2026-01-01' THEN 'cot-1'
+                            WHEN creation_date = '2026-05-01' THEN 'cot-2'
+                            ELSE NULL
+    END
+WHERE collectivity_id = 'col-1';
 --collectivity 2
-INSERT INTO member_payment (id, collectivity_id, member_id,  amount, payment_mode, account_credited_id, creation_date)
+INSERT INTO member_payment (id, collectivity_id, member_id,  amount, payment_mode, account_credited_id, creation_date,membership_fee_id)
 VALUES
-    ('PAY2-001', 'col-2', 'C2-M1', 120000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-002', 'col-2', 'C2-M2', 180000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-003', 'col-2', 'C2-M3', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-004', 'col-2', 'C2-M4', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-005', 'col-2', 'C2-M5', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-006', 'col-2', 'C2-M6', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-007', 'col-2', 'C2-M7', 80000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01'),
-    ('PAY2-008', 'col-2', 'C2-M8', 120000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01');
+    ('PAY2-001', 'col-2', 'C2-M1', 120000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-002', 'col-2', 'C2-M2', 180000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-003', 'col-2', 'C2-M3', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-004', 'col-2', 'C2-M4', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-005', 'col-2', 'C2-M5', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-006', 'col-2', 'C2-M6', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01','cot-3'),
+    ('PAY2-007', 'col-2', 'C2-M7', 80000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01','cot-3'),
+    ('PAY2-008', 'col-2', 'C2-M8', 120000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01','cot-3');
 
 INSERT INTO collectivity_transaction (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id)
 VALUES
@@ -235,3 +242,4 @@ INSERT INTO member_referee (member_id, referee_id) VALUES
                                                        ('C3-M13', 'C3-M2'),
                                                        ('C3-M14', 'C3-M1'),
                                                        ('C3-M14', 'C3-M2');
+
