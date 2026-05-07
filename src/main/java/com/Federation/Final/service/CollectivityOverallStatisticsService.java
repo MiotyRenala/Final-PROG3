@@ -43,7 +43,6 @@ public class CollectivityOverallStatisticsService {
             CollectivityOverallStatistics stats = new CollectivityOverallStatistics();
             stats.setCollectivityInformation(info);
             stats.setNewMembersNumber((Integer) row.get("newMembers"));
-
             Object percentageObj = row.get("duePercentage");
 
             if (percentageObj != null) {

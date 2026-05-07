@@ -89,6 +89,7 @@ public class CollectivityOverallStatisticsRepository {
                 row.put("totalMembers", rs.getInt("total_members"));
                 row.put("upToDateMembers", rs.getInt("up_to_date_members"));
                 row.put("newMembers", rs.getInt("new_members"));
+                row.put("duePercentage",rs.getBigDecimal("due_percentage"));
 
                 results.add(row);
             }
