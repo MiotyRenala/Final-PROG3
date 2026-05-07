@@ -28,7 +28,7 @@ public class LocalStatisticService {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la récupération des statistiques: " + e.getMessage());
+            throw new RuntimeException("Error fetching " + e.getMessage());
         }
     }
 }

@@ -139,7 +139,7 @@ public class LocalStatisticRepository {
         try {
             String sql = """
                 SELECT 
-                    COALESCE(SUM(mf.amount), 0) as unpaid_amount
+                    COALESCE(SUM(mf.amount), 0) -COALESCE(SUM(mp.amount), 0) as unpaid_amount
                 FROM membership_fee mf
                 LEFT JOIN member_payment mp ON mp.membership_fee_id = mf.id
                 WHERE mp.member_id = ?
