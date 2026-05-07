@@ -59,7 +59,7 @@ INSERT INTO mobile_banking_account (
       ('C1-A-MOBILE-1', 'Mpanorina', 'ORANGE_MONEY', 370489612, 0.00),
       ('C2-A-MOBILE-1', 'Dobo voalohany', 'ORANGE_MONEY', 320489612, 0.00);
 
-INSERT INTO financial_account (account_id, account_type, collectivity_id)
+INSERT INTO financial_account (id, type, collectivity_id)
 VALUES
     ('C3-A-BANK-1', 'BANK', 'col-3'),
     ('C3-A-BANK-2', 'BANK', 'col-3');
@@ -69,7 +69,7 @@ VALUES
     ('C3-A-BANK-1', 'Koto', 'BMOI', 00004, 00001, 1234567890, 12, 0),
     ('C3-A-BANK-2', 'Naivo', 'BRED', 00008, 00003, 4567890123, 58, 0);
 
-INSERT INTO financial_account (account_id, account_type, collectivity_id)
+INSERT INTO financial_account (id, type, collectivity_id)
 VALUES ('C3-A-MOBILE-1', 'MOBILE_MONEY', 'col-3');
 
 INSERT INTO mobile_banking_account (id, holder_name, mobile_banking_service, mobile_number, amount)
@@ -89,9 +89,9 @@ INSERT INTO member_payment (id, collectivity_id, member_id, amount, payment_mode
 VALUES
     ('PAY-001', 'col-1', 'C1-M1', 200000.00, 'CASH', 'C1-A-CASH', '2026-01-01'),
     ('PAY-002', 'col-1', 'C1-M2', 200000.00, 'CASH', 'C1-A-CASH', '2026-01-01'),
-    ('PAY-003', 'col-1', 'C1-M3', 200000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', '2026-01-01'),
-    ('PAY-004', 'col-1', 'C1-M4', 200000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', '2026-01-01'),
-    ('PAY-005', 'col-1', 'C1-M5', 150000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', '2026-01-01'),
+    ('PAY-003', 'col-1', 'C1-M3', 200000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', '2026-01-01'),
+    ('PAY-004', 'col-1', 'C1-M4', 200000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', '2026-01-01'),
+    ('PAY-005', 'col-1', 'C1-M5', 150000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', '2026-01-01'),
     ('PAY-006', 'col-1', 'C1-M6', 100000.00, 'CASH', 'C1-A-CASH', '2026-05-01'),
     ('PAY-007', 'col-1', 'C1-M7', 60000.00, 'CASH', 'C1-A-CASH', '2026-05-01'),
     ('PAY-008', 'col-1', 'C1-M8', 90000.00, 'CASH', 'C1-A-CASH', '2026-05-01');
@@ -100,9 +100,9 @@ INSERT INTO collectivity_transaction (id, collectivity_id, creation_date, amount
 VALUES
     ('TXN-001', 'col-1', '2026-01-01', 200000.00, 'CASH', 'C1-A-CASH', 'C1-M1'),
     ('TXN-002', 'col-1', '2026-01-01', 200000.00, 'CASH', 'C1-A-CASH', 'C1-M2'),
-    ('TXN-003', 'col-1', '2026-01-01', 200000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', 'C1-M3'),
-    ('TXN-004', 'col-1', '2026-01-01', 200000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', 'C1-M4'),
-    ('TXN-005', 'col-1', '2026-01-01', 150000.00, 'MOBILE_MONEY', 'C1-A-MOBILE-1', 'C1-M5'),
+    ('TXN-003', 'col-1', '2026-01-01', 200000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', 'C1-M3'),
+    ('TXN-004', 'col-1', '2026-01-01', 200000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', 'C1-M4'),
+    ('TXN-005', 'col-1', '2026-01-01', 150000.00, 'MOBILE_BANKING', 'C1-A-MOBILE-1', 'C1-M5'),
     ('TXN-006', 'col-1', '2026-05-01', 100000.00, 'CASH', 'C1-A-CASH', 'C1-M6'),
     ('TXN-007', 'col-1', '2026-05-01', 60000.00, 'CASH', 'C1-A-CASH', 'C1-M7'),
     ('TXN-008', 'col-1', '2026-05-01', 90000.00, 'CASH', 'C1-A-CASH', 'C1-M8');
@@ -116,8 +116,8 @@ VALUES
     ('PAY2-004', 'col-2', 'C2-M4', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
     ('PAY2-005', 'col-2', 'C2-M5', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
     ('PAY2-006', 'col-2', 'C2-M6', 200000.00, 'CASH', 'C2-A-CASH', '2026-01-01'),
-    ('PAY2-007', 'col-2', 'C2-M7', 80000.00, 'MOBILE_MONEY', 'C2-A-MOBILE-1', '2026-01-01'),
-    ('PAY2-008', 'col-2', 'C2-M8', 120000.00, 'MOBILE_MONEY', 'C2-A-MOBILE-1', '2026-01-01');
+    ('PAY2-007', 'col-2', 'C2-M7', 80000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01'),
+    ('PAY2-008', 'col-2', 'C2-M8', 120000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', '2026-01-01');
 
 INSERT INTO collectivity_transaction (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id)
 VALUES
@@ -127,46 +127,46 @@ VALUES
     ('TXN2-004', 'col-2', '2026-01-01', 200000.00, 'CASH', 'C2-A-CASH', 'C2-M4'),
     ('TXN2-005', 'col-2', '2026-01-01', 200000.00, 'CASH', 'C2-A-CASH', 'C2-M5'),
     ('TXN2-006', 'col-2', '2026-01-01', 200000.00, 'CASH', 'C2-A-CASH', 'C2-M6'),
-    ('TXN2-007', 'col-2', '2026-01-01', 80000.00, 'MOBILE_MONEY', 'C2-A-MOBILE-1', 'C2-M7'),
-    ('TXN2-008', 'col-2', '2026-01-01', 120000.00, 'MOBILE_MONEY', 'C2-A-MOBILE-1', 'C2-M8');
+    ('TXN2-007', 'col-2', '2026-01-01', 80000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', 'C2-M7'),
+    ('TXN2-008', 'col-2', '2026-01-01', 120000.00, 'MOBILE_BANKING', 'C2-A-MOBILE-1', 'C2-M8');
 
 --collectivity 3
 INSERT INTO member_payment (id, collectivity_id, member_id, membership_fee_id, amount, payment_mode, account_credited_id, creation_date)
 VALUES
-    ('PAY3-001', 'col-3', 'C3-M1', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-04-01'),
-    ('PAY3-002', 'col-3', 'C3-M2', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-04-01'),
-    ('PAY3-003', 'col-3', 'C3-M3', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-04-01'),
-    ('PAY3-004', 'col-3', 'C3-M4', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-04-01'),
-    ('PAY3-005', 'col-3', 'C3-M5', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-2', '2026-04-01'),
-    ('PAY3-006', 'col-3', 'C3-M6', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-2', '2026-04-01'),
+    ('PAY3-001', 'col-3', 'C3-M1', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-04-01'),
+    ('PAY3-002', 'col-3', 'C3-M2', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-04-01'),
+    ('PAY3-003', 'col-3', 'C3-M3', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-04-01'),
+    ('PAY3-004', 'col-3', 'C3-M4', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-04-01'),
+    ('PAY3-005', 'col-3', 'C3-M5', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', '2026-04-01'),
+    ('PAY3-006', 'col-3', 'C3-M6', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', '2026-04-01'),
     ('PAY3-007', 'col-3', 'C3-M7', 'cot-5', 25000.00, 'CASH', 'C3-A-CASH', '2026-04-01'),
     ('PAY3-008', 'col-3', 'C3-M8', 'cot-5', 25000.00, 'CASH', 'C3-A-CASH', '2026-04-01'),
-    ('PAY3-009', 'col-3', 'C3-M1', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-05-01'),
-    ('PAY3-010', 'col-3', 'C3-M2', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-1', '2026-05-01'),
-    ('PAY3-011', 'col-3', 'C3-M3', 'cot-5', 15000.00, 'BANK', 'C3-A-MOBILE-1', '2026-05-01'),
-    ('PAY3-012', 'col-3', 'C3-M4', 'cot-5', 15000.00, 'BANK', 'C3-A-MOBILE-1', '2026-05-01'),
-    ('PAY3-013', 'col-3', 'C3-M5', 'cot-5', 20000.00, 'BANK', 'C3-A-BANK-2', '2026-05-01'),
-    ('PAY3-014', 'col-3', 'C3-M6', 'cot-5', 25000.00, 'BANK', 'C3-A-BANK-2', '2026-05-01'),
+    ('PAY3-009', 'col-3', 'C3-M1', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-05-01'),
+    ('PAY3-010', 'col-3', 'C3-M2', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', '2026-05-01'),
+    ('PAY3-011', 'col-3', 'C3-M3', 'cot-5', 15000.00, 'BANK_TRANSFER', 'C3-A-MOBILE-1', '2026-05-01'),
+    ('PAY3-012', 'col-3', 'C3-M4', 'cot-5', 15000.00, 'BANK_TRANSFER', 'C3-A-MOBILE-1', '2026-05-01'),
+    ('PAY3-013', 'col-3', 'C3-M5', 'cot-5', 20000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', '2026-05-01'),
+    ('PAY3-014', 'col-3', 'C3-M6', 'cot-5', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', '2026-05-01'),
     ('PAY3-015', 'col-3', 'C3-M7', 'cot-5', 5000.00, 'CASH', 'C3-A-CASH', '2026-05-01'),
     ('PAY3-016', 'col-3', 'C3-M8', 'cot-5', 5000.00, 'CASH', 'C3-A-CASH', '2026-05-01');
-3. Insertion des transactions (collectivity_transaction)
-sql
+
+
 INSERT INTO collectivity_transaction (id, collectivity_id, creation_date, amount, payment_mode, account_credited_id, member_debited_id)
 VALUES
-    ('TXN3-001', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M1'),
-    ('TXN3-002', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M2'),
-    ('TXN3-003', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M3'),
-    ('TXN3-004', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M4'),
-    ('TXN3-005', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-2', 'C3-M5'),
-    ('TXN3-006', 'col-3', '2026-04-01', 25000.00, 'BANK', 'C3-A-BANK-2', 'C3-M6'),
+    ('TXN3-001', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M1'),
+    ('TXN3-002', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M2'),
+    ('TXN3-003', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M3'),
+    ('TXN3-004', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M4'),
+    ('TXN3-005', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', 'C3-M5'),
+    ('TXN3-006', 'col-3', '2026-04-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', 'C3-M6'),
     ('TXN3-007', 'col-3', '2026-04-01', 25000.00, 'CASH', 'C3-A-CASH', 'C3-M7'),
     ('TXN3-008', 'col-3', '2026-04-01', 25000.00, 'CASH', 'C3-A-CASH', 'C3-M8'),
-    ('TXN3-009', 'col-3', '2026-05-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M1'),
-    ('TXN3-010', 'col-3', '2026-05-01', 25000.00, 'BANK', 'C3-A-BANK-1', 'C3-M2'),
-    ('TXN3-011', 'col-3', '2026-05-01', 15000.00, 'BANK', 'C3-A-MOBILE-1', 'C3-M3'),
-    ('TXN3-012', 'col-3', '2026-05-01', 15000.00, 'BANK', 'C3-A-MOBILE-1', 'C3-M4'),
-    ('TXN3-013', 'col-3', '2026-05-01', 20000.00, 'BANK', 'C3-A-BANK-2', 'C3-M5'),
-    ('TXN3-014', 'col-3', '2026-05-01', 25000.00, 'BANK', 'C3-A-BANK-2', 'C3-M6'),
+    ('TXN3-009', 'col-3', '2026-05-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M1'),
+    ('TXN3-010', 'col-3', '2026-05-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-1', 'C3-M2'),
+    ('TXN3-011', 'col-3', '2026-05-01', 15000.00, 'BANK_TRANSFER', 'C3-A-MOBILE-1', 'C3-M3'),
+    ('TXN3-012', 'col-3', '2026-05-01', 15000.00, 'BANK_TRANSFER', 'C3-A-MOBILE-1', 'C3-M4'),
+    ('TXN3-013', 'col-3', '2026-05-01', 20000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', 'C3-M5'),
+    ('TXN3-014', 'col-3', '2026-05-01', 25000.00, 'BANK_TRANSFER', 'C3-A-BANK-2', 'C3-M6'),
     ('TXN3-015', 'col-3', '2026-05-01', 5000.00, 'CASH', 'C3-A-CASH', 'C3-M7'),
     ('TXN3-016', 'col-3', '2026-05-01', 5000.00, 'CASH', 'C3-A-CASH', 'C3-M8');
 

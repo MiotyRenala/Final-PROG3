@@ -81,6 +81,10 @@ create table bank_account(
     amount numeric(12,2) not null check ( amount > 0 )
 
 );
+ALTER TABLE bank_account
+    ALTER COLUMN bank_account_code TYPE BIGINT;
+
+Alter table bank_account add column amount numeric(12,2) not null check ( amount >= 0 );
 
 create type mobile_banking_service_enum as enum ('AIRTEL_MONEY', 'MVOLA','ORANGE_MONEY');
 create table mobile_banking_account(
