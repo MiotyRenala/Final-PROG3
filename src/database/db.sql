@@ -25,7 +25,7 @@ create table collectivity_structure(
 );
 
 
-CREATE TABLE Collectivity(
+CREATE TABLE Collectivity(  
                              id varchar(50) primary key ,
                              location varchar(50),
     structure_id integer references collectivity_structure (id),
