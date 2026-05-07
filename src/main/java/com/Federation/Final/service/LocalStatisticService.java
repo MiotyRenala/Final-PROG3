@@ -23,7 +23,7 @@ public class LocalStatisticService {
                                                                 LocalDate from,
                                                                 LocalDate to) {
         try {
-            // Appel direct au repository
+
             return localStatisticRepository.getLocalStatistics(collectivityId, from, to);
 
         } catch (SQLException e) {
